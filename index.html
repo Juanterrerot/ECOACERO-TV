@@ -1,1 +1,1486 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusSign - Digital Signage & Comunicación Corporativa</title>
 
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                            accent: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'marquee': 'marquee 25s linear infinite',
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(-100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Custom Utility Styles -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 1); }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Player display ratios */
+        .ratio-16-9 { aspect-ratio: 16 / 9; }
+        .ratio-9-16 { aspect-ratio: 9 / 16; }
+
+        .slide-fade-enter {
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-x-hidden select-none">
+
+    <!-- TOP NAVIGATION & CONTROL BAR -->
+    <header class="bg-slate-900/90 border-b border-slate-800 text-white sticky top-0 z-50 backdrop-blur-md px-4 py-2.5 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-md shadow-brand-500/20">
+                <i class="fa-solid fa-[#0284c7] fa-tv text-white text-lg"></i>
+            </div>
+            <div>
+                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-500 bg-clip-text text-transparent">NexusSign</span>
+                <span class="hidden sm:inline-block text-xs bg-brand-500/10 text-brand-500 border border-brand-500/30 px-2 py-0.5 rounded-full font-mono ml-2">v2.4 Enterprise</span>
+            </div>
+        </div>
+
+        <!-- Mode Toggle & Quick Settings -->
+        <div class="flex items-center space-x-2 sm:space-x-4">
+            <!-- View Mode Selector -->
+            <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center">
+                <button id="btn-mode-admin" onclick="switchViewMode('admin')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span class="hidden md:inline">Panel Admin (/admin)</span>
+                    <span class="md:hidden">CMS</span>
+                </button>
+                <button id="btn-mode-player" onclick="switchViewMode('player')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-play"></i>
+                    <span class="hidden md:inline">Reproductor Vivo (/player)</span>
+                    <span class="md:hidden">Player</span>
+                </button>
+            </div>
+
+            <!-- Screen Target Selector (For Player preview) -->
+            <div id="player-target-selector" class="hidden items-center space-x-2 border-l border-slate-800 pl-3">
+                <div class="text-xs text-slate-400 hidden lg:block">Dispositivo:</div>
+                <select id="select-active-device" onchange="onSelectedDeviceChange(this.value)" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 outline-none">
+                    <option value="device-01">TV Recepción Principal (16:9)</option>
+                    <option value="device-02">Tótem Pasillo Norte (9:16)</option>
+                    <option value="device-03">Monitor Cafeteria (16:9)</option>
+                </select>
+
+                <!-- Orientation Toggle -->
+                <div class="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+                    <button id="btn-orient-169" onclick="setPlayerOrientation('16:9')" title="Modo Horizontal 16:9" class="p-1.5 text-xs rounded text-brand-500 bg-slate-800 font-bold">16:9</button>
+                    <button id="btn-orient-916" onclick="setPlayerOrientation('9:16')" title="Modo Vertical 9:16" class="p-1.5 text-xs rounded text-slate-400 hover:text-white font-bold">9:16</button>
+                </div>
+            </div>
+
+            <!-- Connection Status Indicator -->
+            <div class="hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full text-xs text-emerald-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span class="font-medium">Sistema Online</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER FOR BOTH VIEWS -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- VIEW 1: ADMIN PORTAL (/admin) -->
+        <main id="view-admin" class="flex-1 flex overflow-hidden w-full">
+            
+            <!-- Admin Sidebar -->
+            <aside class="w-16 md:w-64 bg-slate-900/70 border-r border-slate-800 flex flex-col justify-between shrink-0 transition-all">
+                <div class="p-3 md:p-4 space-y-1">
+                    <div class="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 py-2 hidden md:block">Navegación CMS</div>
+                    
+                    <button onclick="switchAdminTab('dashboard')" id="nav-dashboard" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors bg-brand-600 text-white">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                        <span class="hidden md:inline">Dashboard Overview</span>
+                    </button>
+                    
+                    <button onclick="switchAdminTab('content')" id="nav-content" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i class="fa-solid fa-photo-film w-5 text-center"></i>
+                        <span class="hidden md:inline">Galería de Contenidos</span>
+                    </button>
+
+                    <button onclick="switchAdminTab('announcements')" id="nav-announcements" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i class="fa-solid fa-pen-to-square w-5 text-center"></i>
+                        <span class="hidden md:inline">Creador de Avisos</span>
+                    </button>
+
+                    <button onclick="switchAdminTab('playlists')" id="nav-playlists" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i class="fa-solid fa-list-check w-5 text-center"></i>
+                        <span class="hidden md:inline">Playlists y Tiempos</span>
+                    </button>
+
+                    <button onclick="switchAdminTab('devices')" id="nav-devices" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i class="fa-solid fa-desktop w-5 text-center"></i>
+                        <span class="hidden md:inline">Pantallas / Smart TVs</span>
+                    </button>
+
+                    <button onclick="switchAdminTab('settings')" id="nav-settings" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i class="fa-solid fa-sliders w-5 text-center"></i>
+                        <span class="hidden md:inline">Configuración Global</span>
+                    </button>
+                </div>
+
+                <!-- Admin User Footer -->
+                <div class="p-3 md:p-4 border-t border-slate-800/80 bg-slate-950/40">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-brand-500 border border-slate-600">
+                            AD
+                        </div>
+                        <div class="hidden md:block overflow-hidden">
+                            <div class="text-xs font-semibold text-slate-200 truncate">Admin Corporativo</div>
+                            <div class="text-[10px] text-slate-400 truncate">admin@empresa.com</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Admin Content Container -->
+            <section class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-950/90">
+
+                <!-- TAB 1: DASHBOARD OVERVIEW -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <!-- Page Title -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard General</h1>
+                            <p class="text-slate-400 text-sm">Resumen en tiempo real de la red de comunicación digital corporativa.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="openUploadModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-brand-600/30">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Subir Nuevo Contenido</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Pantallas En Línea</div>
+                                <div class="text-2xl font-extrabold text-white mt-1" id="kpi-devices-online">3 / 4</div>
+                                <div class="text-xs text-emerald-400 flex items-center mt-1">
+                                    <i class="fa-solid fa-check text-[10px] mr-1"></i> 75% operativas 24/7
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-tv"></i>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Total de Archivos</div>
+                                <div class="text-2xl font-extrabold text-white mt-1" id="kpi-total-content">12</div>
+                                <div class="text-xs text-brand-400 flex items-center mt-1">
+                                    <i class="fa-solid fa-layer-group text-[10px] mr-1"></i> PPTX, Videos, HTML
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Playlists Activas</div>
+                                <div class="text-2xl font-extrabold text-white mt-1" id="kpi-active-playlists">3</div>
+                                <div class="text-xs text-indigo-400 flex items-center mt-1">
+                                    <i class="fa-solid fa-clock text-[10px] mr-1"></i> Programación al día
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-list-ul"></i>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Almacenamiento</div>
+                                <div class="text-2xl font-extrabold text-white mt-1">1.42 GB</div>
+                                <div class="text-xs text-slate-400 flex items-center mt-1">
+                                    <span class="text-amber-400 font-semibold mr-1">28%</span> de 5.0 GB libre
+                                </div>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-hard-drive"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Charts / Status Rows -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Connected Devices Health Overview -->
+                        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-base font-bold text-white">Monitoreo de Pantallas en Tiempo Real</h3>
+                                    <p class="text-xs text-slate-400">Estado de reproducción y transmisión 24/7</p>
+                                </div>
+                                <button onclick="switchAdminTab('devices')" class="text-xs text-brand-400 hover:text-brand-300 font-medium">Ver Todas &rarr;</button>
+                            </div>
+
+                            <div class="space-y-3" id="dashboard-device-list">
+                                <!-- Dynamic device items populated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- System Activity & Conversion Status -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-white mb-1">Servicio de Conversión PPTX/Video</h3>
+                                <p class="text-xs text-slate-400 mb-4">Estado de workers asíncronos y conversiones</p>
+                                
+                                <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 space-y-3">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-slate-300 font-mono"><i class="fa-solid fa-microchip text-brand-500 mr-2"></i>Worker FFmpeg/LibreOffice</span>
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">STANDBY</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                        <div class="bg-brand-500 h-1.5 rounded-full w-full"></div>
+                                    </div>
+                                    <div class="text-[11px] text-slate-400">Última conversión: <span class="text-slate-200">Presentacion_Seguridad.pptx</span> (8 slides generados a WebP en 3.2s)</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-slate-800">
+                                <div class="text-xs font-semibold text-slate-300 mb-2">Acciones Rápidas</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button onclick="switchAdminTab('announcements')" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-200 font-medium text-left flex items-center space-x-2 transition">
+                                        <i class="fa-solid fa-bullhorn text-brand-400"></i>
+                                        <span>Crear Aviso Urgente</span>
+                                    </button>
+                                    <button onclick="openUploadModal()" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-200 font-medium text-left flex items-center space-x-2 transition">
+                                        <i class="fa-solid fa-file-powerpoint text-amber-400"></i>
+                                        <span>Subir Presentación</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: CONTENT GALLERY -->
+                <div id="tab-content" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-white tracking-tight">Biblioteca de Contenidos</h1>
+                            <p class="text-slate-400 text-sm">Gestiona imágenes, videos, diapositivas de PowerPoint y comunicados corporativos.</p>
+                        </div>
+                        <button onclick="openUploadModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-brand-600/30">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Agregar Contenido</span>
+                        </button>
+                    </div>
+
+                    <!-- Filter & Search Bar -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+                        <!-- Category filters -->
+                        <div class="flex items-center space-x-1 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0" id="content-filter-buttons">
+                            <button onclick="filterContent('all')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white transition">Todos</button>
+                            <button onclick="filterContent('image')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Imágenes</button>
+                            <button onclick="filterContent('video')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Videos</button>
+                            <button onclick="filterContent('pptx')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Presentaciones</button>
+                            <button onclick="filterContent('html')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Comunicados HTML</button>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="relative w-full sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+                            <input type="text" id="content-search-input" onkeyup="searchContent(this.value)" placeholder="Buscar por nombre..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+
+                    <!-- Content Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="content-cards-grid">
+                        <!-- Dynamically rendered content cards -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: ANNOUNCEMENT / NOTICE CREATOR -->
+                <div id="tab-announcements" class="tab-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Creador de Comunicados HTML</h1>
+                        <p class="text-slate-400 text-sm">Diseña avisos institucionales, avisos urgentes y reconocimientos directo en el navegador.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Form Editor -->
+                        <div class="lg:col-span-5 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
+                            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3">Configurar Plantilla</h3>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Estilo / Tema del Aviso</label>
+                                <select id="announcement-theme" onchange="updateNoticePreview()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                    <option value="urgent">🚨 Alerta de Seguridad / Urgente</option>
+                                    <option value="event">🎉 Evento Corporativo</option>
+                                    <option value="recognition">⭐ Reconocimiento a Empleado</option>
+                                    <option value="news">📰 Noticia Institucional</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Título Principal</label>
+                                <input type="text" id="announcement-title" oninput="updateNoticePreview()" value="SIMULACRO DE EVACUACIÓN" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Mensaje / Detalle</label>
+                                <textarea id="announcement-body" oninput="updateNoticePreview()" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">Este viernes a las 10:30 AM se llevará a cabo el simulacro general de evacuación en todas las torres. Favor de mantener la calma y seguir a los brigadistas.</textarea>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1">Duración (seg)</label>
+                                    <input type="number" id="announcement-duration" value="12" min="5" max="60" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1">Categoría</label>
+                                    <input type="text" id="announcement-category" value="Seguridad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <button onclick="saveAnnouncementContent()" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-brand-600/30 transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Guardar en Biblioteca de Contenidos</span>
+                            </button>
+                        </div>
+
+                        <!-- Live Interactive Canvas Preview -->
+                        <div class="lg:col-span-7 glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Vista Previa en Vivo (Pantalla 16:9)</h3>
+                                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">WYSIWYG</span>
+                                </div>
+                                
+                                <!-- Preview Canvas Box -->
+                                <div id="notice-preview-box" class="w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-red-950 via-slate-900 to-black border border-red-500/30">
+                                    <!-- Background decorative pattern -->
+                                    <div class="absolute inset-0 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
+
+                                    <div class="relative z-10 flex justify-between items-center border-b border-white/10 pb-4">
+                                        <div class="flex items-center space-x-3">
+                                            <div id="notice-preview-badge-icon" class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-lg">
+                                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                            </div>
+                                            <div>
+                                                <div id="notice-preview-tag" class="text-xs font-bold text-red-400 tracking-wider uppercase">AVISO DE SEGURIDAD</div>
+                                                <div class="text-[10px] text-slate-400">COMUNICACIÓN INTERNA HQ</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right text-xs text-slate-400">NEXUS SIGN</div>
+                                    </div>
+
+                                    <div class="relative z-10 my-auto py-4">
+                                        <h2 id="notice-preview-title" class="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-3">SIMULACRO DE EVACUACIÓN</h2>
+                                        <p id="notice-preview-body" class="text-sm md:text-base text-slate-200 leading-relaxed font-light">Este viernes a las 10:30 AM se llevará a cabo el simulacro general de evacuación en todas las torres. Favor de mantener la calma y seguir a los brigadistas.</p>
+                                    </div>
+
+                                    <div class="relative z-10 flex justify-between items-center text-[10px] text-slate-400 border-t border-white/10 pt-3">
+                                        <span>Validez: Hoy durante todo el día</span>
+                                        <span>Código: COM-2026-99</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: PLAYLISTS & SCHEDULING -->
+                <div id="tab-playlists" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-white tracking-tight">Listas de Reproducción</h1>
+                            <p class="text-slate-400 text-sm">Organiza el orden de aparición, tiempo de cada diapositiva y asignación de pantallas.</p>
+                        </div>
+                        <button onclick="createNewPlaylistPrompt()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shadow-lg">
+                            <i class="fa-solid fa-folder-plus"></i>
+                            <span>Nueva Playlist</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Playlist List Selector -->
+                        <div class="lg:col-span-4 space-y-3" id="playlist-list-container">
+                            <!-- Dynamic playlist menu items -->
+                        </div>
+
+                        <!-- Active Playlist Details & Builder -->
+                        <div class="lg:col-span-8 glass-panel p-6 rounded-2xl border border-slate-800 space-y-6" id="playlist-editor-panel">
+                            <!-- Dynamic details injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: SMART TVs & DEVICES -->
+                <div id="tab-devices" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-white tracking-tight">Gestión de Pantallas y Smart TVs</h1>
+                            <p class="text-slate-400 text-sm">Monitorea tus dispositivos, empareja nuevas pantallas y ajusta resoluciones.</p>
+                        </div>
+                        <button onclick="openPairDeviceModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-emerald-600/30">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Emparejar Nueva TV</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="devices-cards-grid">
+                        <!-- Dynamic Screen Device Cards -->
+                    </div>
+                </div>
+
+                <!-- TAB 6: SETTINGS -->
+                <div id="tab-settings" class="tab-content hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Configuración Global del Sistema</h1>
+                        <p class="text-slate-400 text-sm">Ajustes de servidor, marca corporativa e intervalos de sincronización.</p>
+                    </div>
+
+                    <div class="max-w-3xl glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
+                        <div class="space-y-4">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Identidad Corporativa</h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Nombre de la Empresa</label>
+                                    <input type="text" value="Empresa Corporativa S.A." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Texto del Marquee / Marquesina Inferior</label>
+                                    <input type="text" id="setting-marquee-text" value="📢 RECORDATORIO: Manta de Seguridad al día • Bienvenidos visitantes de la Sede Central • Reunión General el viernes 16:00 hrs." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 pt-2">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Optimización del Reproductor 24/7</h3>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-semibold text-slate-200">Limpieza Automática de Memoria (GC)</div>
+                                    <div class="text-[11px] text-slate-500">Reinicia buffers de canvas y video cada 6 horas para evitar memory leaks en Smart TV.</div>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded">
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-semibold text-slate-200">Caché Local Offline (IndexedDB)</div>
+                                    <div class="text-[11px] text-slate-500">Guarda imágenes y diapositivas localmente para continuar en caso de caída de internet.</div>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded">
+                            </div>
+                        </div>
+
+                        <button onclick="showToast('Configuración guardada correctamente', 'success')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition">Guardar Cambios</button>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- VIEW 2: LIVE DIGITAL SIGNAGE PLAYER (/player/{device-id}) -->
+        <main id="view-player" class="hidden flex-1 bg-black overflow-hidden flex items-center justify-center relative p-2 md:p-6">
+            
+            <!-- Player Outer Display Frame Wrapper (Handles 16:9 / 9:16 switching) -->
+            <div id="player-frame" class="w-full h-full max-w-[1400px] ratio-16-9 bg-slate-950 rounded-2xl border border-slate-800/60 shadow-2xl overflow-hidden relative flex flex-col justify-between transition-all duration-500">
+                
+                <!-- TOP OVERLAY BAR (Logo, Device Name, Online Status) -->
+                <div class="absolute top-0 left-0 right-0 z-30 p-4 md:p-6 flex justify-between items-start pointer-events-none bg-gradient-to-b from-black/80 via-black/30 to-transparent">
+                    <!-- Brand Logo Overlay -->
+                    <div class="flex items-center space-x-3 backdrop-blur-md bg-slate-950/40 border border-white/10 px-3.5 py-1.5 rounded-2xl">
+                        <div class="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white text-xs font-bold">
+                            <i class="fa-solid fa-[#0284c7] fa-tv"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-extrabold text-white tracking-wider uppercase">ACME CORP</div>
+                            <div class="text-[9px] text-brand-400 font-mono">Digital Signage Feed</div>
+                        </div>
+                    </div>
+
+                    <!-- Screen Identifier & Clock -->
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden sm:flex items-center space-x-2 backdrop-blur-md bg-slate-950/40 border border-white/10 px-3 py-1.5 rounded-2xl text-xs text-slate-300">
+                            <i class="fa-solid fa-location-dot text-brand-400"></i>
+                            <span id="player-screen-label" class="font-medium">TV Recepción Principal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN DISPLAY MEDIA CANVAS / STAGE -->
+                <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden" id="player-media-stage">
+                    <!-- Dynamic rendering stage for Slides, Images, Videos, HTML notices -->
+                </div>
+
+                <!-- BOTTOM OVERLAY BAR (Clock, Weather, Ticker / Marquee) -->
+                <div class="relative z-30 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 p-3 md:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
+                    <!-- Live Clock & Weather -->
+                    <div class="flex items-center space-x-4 shrink-0">
+                        <div class="text-left">
+                            <div id="player-clock-time" class="text-lg md:text-xl font-bold font-mono tracking-tight text-white">12:00:00 PM</div>
+                            <div id="player-clock-date" class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Lunes, 5 Octubre</div>
+                        </div>
+                        <div class="h-6 w-px bg-slate-800"></div>
+                        <div class="flex items-center space-x-2 text-slate-300 text-xs">
+                            <i class="fa-solid fa-cloud-sun text-amber-400 text-base"></i>
+                            <div>
+                                <div class="font-bold text-xs">24°C</div>
+                                <div class="text-[9px] text-slate-400">Oficinas HQ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Marquee Ticker -->
+                    <div class="flex-1 w-full overflow-hidden relative mx-2 bg-slate-900/80 border border-slate-800/80 rounded-xl py-1.5 px-3 flex items-center">
+                        <div class="shrink-0 bg-brand-600 text-white text-[9px] font-bold uppercase px-2 py-0.5 rounded mr-3 flex items-center space-x-1">
+                            <i class="fa-solid fa-bullhorn text-[9px]"></i>
+                            <span>Noticias</span>
+                        </div>
+                        <div class="overflow-hidden w-full relative">
+                            <div id="player-marquee-text" class="whitespace-nowrap animate-marquee inline-block text-xs text-slate-200 font-medium">
+                                📢 RECORDATORIO: Simulacro de seguridad este viernes a las 10:30 AM • Bienvenidos los nuevos colaboradores del área de IT • Resultados Q3 disponibles en la intranet.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playlist Progress bar -->
+                    <div class="shrink-0 flex items-center space-x-2 text-xs text-slate-400">
+                        <span id="player-slide-counter" class="font-mono text-[11px] text-brand-400">1/5</span>
+                        <div class="w-16 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div id="player-progress-bar" class="bg-brand-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Interactive Controls overlay (On hover) -->
+                <div class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity z-40 flex items-center justify-center space-x-4 backdrop-blur-xs pointer-events-auto">
+                    <button onclick="prevPlayerSlide()" class="w-12 h-12 rounded-full bg-slate-900/90 hover:bg-brand-600 text-white flex items-center justify-center transition shadow-xl border border-white/10">
+                        <i class="fa-solid fa-backward"></i>
+                    </button>
+                    <button id="btn-player-playpause" onclick="togglePlayerPause()" class="w-16 h-16 rounded-full bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center text-xl transition shadow-xl shadow-brand-600/50">
+                        <i class="fa-solid fa-pause" id="icon-player-playpause"></i>
+                    </button>
+                    <button onclick="nextPlayerSlide()" class="w-12 h-12 rounded-full bg-slate-900/90 hover:bg-brand-600 text-white flex items-center justify-center transition shadow-xl border border-white/10">
+                        <i class="fa-solid fa-forward"></i>
+                    </button>
+                    <button onclick="toggleFullScreen()" class="w-10 h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center transition absolute top-4 right-4">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- MODAL: UPLOAD FILE & PPTX CONVERTER SIMULATION -->
+    <div id="modal-upload" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-xl p-6 rounded-2xl border border-slate-800 shadow-2xl relative space-y-5">
+            <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+
+            <div>
+                <h3 class="text-lg font-bold text-white">Subir Nuevo Contenido / Presentación PPTX</h3>
+                <p class="text-xs text-slate-400">El sistema procesará e identificará automáticamente imágenes, MP4 o PowerPoint.</p>
+            </div>
+
+            <!-- Upload Dropzone -->
+            <div id="dropzone" onclick="triggerFileInput()" class="border-2 border-dashed border-slate-700 hover:border-brand-500 bg-slate-900/50 rounded-2xl p-8 text-center cursor-pointer transition group">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-500 group-hover:text-brand-500 transition mb-2"></i>
+                <div class="text-sm font-semibold text-slate-200">Arrastra archivos aquí o haz clic para seleccionar</div>
+                <div class="text-xs text-slate-500 mt-1">Formatos soportados: PPTX, PPT, MP4, WEBM, PNG, JPG</div>
+                <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+            </div>
+
+            <!-- Conversion Progress Simulator Box -->
+            <div id="upload-progress-box" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="upload-status-title" class="font-semibold text-brand-400 font-mono">Procesando Presentacion_Corporativa.pptx...</span>
+                    <span id="upload-status-percent" class="font-bold text-white">0%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="upload-progress-bar" class="bg-gradient-to-r from-brand-600 to-indigo-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+                <!-- Conversion Terminal Output simulation -->
+                <div id="upload-terminal-log" class="bg-black/80 rounded-lg p-2.5 font-mono text-[10px] text-emerald-400 space-y-1 h-24 overflow-y-auto border border-slate-800/80">
+                    <div>[SYS] Inicializando receptor de archivos...</div>
+                </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="flex justify-end space-x-3 pt-2">
+                <button onclick="closeUploadModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancelar</button>
+                <button id="btn-start-upload" onclick="startSimulatedUpload()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg">Iniciar Carga y Conversión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PAIR NEW DEVICE -->
+    <div id="modal-pair-device" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-4">
+            <h3 class="text-lg font-bold text-white">Emparejar Nueva Pantalla / Smart TV</h3>
+            <p class="text-xs text-slate-400">Ingresa el código de 6 dígitos que aparece en la pantalla de la TV al iniciar la app.</p>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Código de Emparejamiento</label>
+                <input type="text" id="pair-code-input" placeholder="Ej. NX-8492" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-center text-lg font-mono tracking-widest text-brand-400 focus:border-brand-500 outline-none uppercase">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Nombre del Dispositivo</label>
+                <input type="text" id="pair-name-input" placeholder="Ej. Totem Entrada Auditorio" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Orientación</label>
+                <select id="pair-orient-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                    <option value="16:9">Horizontal (16:9 - Smart TV / Monitor)</option>
+                    <option value="9:16">Vertical (9:16 - Tótem Pasillo)</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closePairDeviceModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancelar</button>
+                <button onclick="confirmDevicePairing()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-lg">Vincular Pantalla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Global Application State
+        const state = {
+            currentViewMode: 'admin', // 'admin' or 'player'
+            activeAdminTab: 'dashboard',
+            selectedDeviceId: 'device-01',
+            playerOrientation: '16:9',
+            playerIsPlaying: true,
+            playerCurrentSlideIndex: 0,
+            playerTimer: null,
+            playerProgressTimer: null,
+            playerProgressPercent: 0,
+            
+            // Initial Content Mock Data
+            contents: [
+                {
+                    id: 'c-1',
+                    title: 'Presentación Seguridad e Higiene 2026',
+                    type: 'pptx',
+                    duration: 8, // seconds per slide
+                    category: 'Capacitación',
+                    thumbnail: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=600&q=80',
+                    slidesCount: 3,
+                    slides: [
+                        { title: 'Protocolos de Seguridad 2026', text: 'Paso 1: Identificación de salidas de emergencia y uso de equipo de protección.', bg: 'from-blue-950 to-slate-950' },
+                        { title: 'Prevención de Riesgos', text: 'Paso 2: Mantener vías de evacuación despejadas en todo momento.', bg: 'from-indigo-950 to-slate-950' },
+                        { title: 'Contactos de Emergencia', text: 'Línea Directa Anexo 911 • Servicio Médico Sede Central.', bg: 'from-slate-900 to-black' }
+                    ],
+                    status: 'active',
+                    createdAt: '2026-10-01'
+                },
+                {
+                    id: 'c-2',
+                    title: 'Video Institucional - Innovación & Metas Q3',
+                    type: 'video',
+                    duration: 15,
+                    category: 'Corporativo',
+                    thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80',
+                    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                    status: 'active',
+                    createdAt: '2026-09-28'
+                },
+                {
+                    id: 'c-3',
+                    title: 'Comunicado: Simulacro Evacuación',
+                    type: 'html',
+                    theme: 'urgent',
+                    duration: 10,
+                    category: 'Seguridad',
+                    titleText: 'SIMULACRO DE EVACUACIÓN',
+                    bodyText: 'Este viernes a las 10:30 AM se llevará a cabo el simulacro general de evacuación en todas las torres.',
+                    thumbnail: 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80',
+                    status: 'active',
+                    createdAt: '2026-10-04'
+                },
+                {
+                    id: 'c-4',
+                    title: 'Empleado del Mes - Dpto Finanzas',
+                    type: 'image',
+                    duration: 10,
+                    category: 'Reconocimiento',
+                    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1200&q=80',
+                    thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
+                    status: 'active',
+                    createdAt: '2026-09-15'
+                }
+            ],
+
+            // Playlists
+            playlists: [
+                {
+                    id: 'pl-1',
+                    name: 'Playlist Recepción Principal (General)',
+                    targetDevices: ['device-01', 'device-03'],
+                    items: ['c-1', 'c-2', 'c-3', 'c-4']
+                },
+                {
+                    id: 'pl-2',
+                    name: 'Playlist Tótems Verticales Pasillo',
+                    targetDevices: ['device-02'],
+                    items: ['c-3', 'c-4']
+                }
+            ],
+
+            // Registered Devices / Smart TVs
+            devices: [
+                { id: 'device-01', name: 'TV Recepción Principal', location: 'Hall Central Fl. 1', orientation: '16:9', status: 'online', pairingCode: 'NX-1049', activePlaylistId: 'pl-1', resolution: '3840x2160 (4K)' },
+                { id: 'device-02', name: 'Tótem Pasillo Norte', location: 'Pasillo Torre B', orientation: '9:16', status: 'online', pairingCode: 'NX-8821', activePlaylistId: 'pl-2', resolution: '1080x1920 (Vertical)' },
+                { id: 'device-03', name: 'Monitor Cafeteria', location: 'Comedor Central', orientation: '16:9', status: 'online', pairingCode: 'NX-3302', activePlaylistId: 'pl-1', resolution: '1920x1080 (Full HD)' },
+                { id: 'device-04', name: 'Smart TV Sala Directorio', location: 'Piso 5 VIP', orientation: '16:9', status: 'offline', pairingCode: 'NX-9011', activePlaylistId: 'pl-1', resolution: '3840x2160 (4K)' }
+            ]
+        };
+
+        window.onload = function() {
+            renderDashboardDevices();
+            renderContentGallery();
+            renderPlaylistsTab();
+            renderDevicesTab();
+            startPlayerClock();
+            startPlayerEngine();
+        };
+
+        function switchViewMode(mode) {
+            state.currentViewMode = mode;
+            const adminView = document.getElementById('view-admin');
+            const playerView = document.getElementById('view-player');
+            const btnAdmin = document.getElementById('btn-mode-admin');
+            const btnPlayer = document.getElementById('btn-mode-player');
+            const targetSelector = document.getElementById('player-target-selector');
+
+            if (mode === 'admin') {
+                adminView.classList.remove('hidden');
+                playerView.classList.add('hidden');
+                btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow";
+                btnPlayer.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white";
+                targetSelector.classList.add('hidden');
+                targetSelector.classList.remove('flex');
+            } else {
+                adminView.classList.add('hidden');
+                playerView.classList.remove('hidden');
+                btnPlayer.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow";
+                btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white";
+                targetSelector.classList.remove('hidden');
+                targetSelector.classList.add('flex');
+                
+                // Refresh player stage
+                renderCurrentPlayerSlide();
+            }
+        }
+
+        function switchAdminTab(tabId) {
+            state.activeAdminTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.admin-nav-item').forEach(el => {
+                el.className = "admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200";
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = "admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors bg-brand-600 text-white";
+            }
+        }
+
+        function renderDashboardDevices() {
+            const container = document.getElementById('dashboard-device-list');
+            if (!container) return;
+
+            container.innerHTML = state.devices.map(d => `
+                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full ${d.status === 'online' ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-red-500'}"></div>
+                        <div>
+                            <div class="text-xs font-bold text-white">${d.name}</div>
+                            <div class="text-[10px] text-slate-400">${d.location} • ${d.orientation}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">${d.resolution}</span>
+                        <button onclick="simulateRemoteRestart('${d.id}')" class="text-xs text-slate-400 hover:text-brand-400 p-1" title="Reiniciar Pantalla Remotamente">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderContentGallery(itemsToRender = state.contents) {
+            const grid = document.getElementById('content-cards-grid');
+            if (!grid) return;
+
+            document.getElementById('kpi-total-content').innerText = state.contents.length;
+
+            grid.innerHTML = itemsToRender.map(item => `
+                <div class="glass-card rounded-2xl overflow-hidden border border-slate-800/80 hover:border-slate-700 transition group flex flex-col justify-between">
+                    <div>
+                        <!-- Thumbnail Box -->
+                        <div class="relative h-36 w-full bg-slate-900 overflow-hidden">
+                            <img src="${item.thumbnail}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            
+                            <!-- Content Type Badge -->
+                            <div class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-white shadow-md ${getContentBadgeColor(item.type)}">
+                                ${item.type === 'pptx' ? '<i class="fa-solid fa-file-powerpoint mr-1"></i>PPTX' : ''}
+                                ${item.type === 'video' ? '<i class="fa-solid fa-video mr-1"></i>Video' : ''}
+                                ${item.type === 'image' ? '<i class="fa-solid fa-image mr-1"></i>Imagen' : ''}
+                                ${item.type === 'html' ? '<i class="fa-solid fa-code mr-1"></i>Aviso HTML' : ''}
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded text-[10px] font-mono bg-black/70 text-slate-200">
+                                ${item.duration}s
+                            </div>
+                        </div>
+
+                        <!-- Content Info -->
+                        <div class="p-4 space-y-1">
+                            <div class="text-xs font-semibold text-brand-400">${item.category}</div>
+                            <h4 class="text-sm font-bold text-white line-clamp-1">${item.title}</h4>
+                            <div class="text-[10px] text-slate-400">Creado: ${item.createdAt}</div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Bar -->
+                    <div class="p-3 bg-slate-950/60 border-t border-slate-800/80 flex justify-between items-center text-xs">
+                        <button onclick="previewContentModal('${item.id}')" class="text-slate-300 hover:text-brand-400 font-medium text-[11px] flex items-center">
+                            <i class="fa-solid fa-eye mr-1"></i> Previsualizar
+                        </button>
+                        <button onclick="deleteContent('${item.id}')" class="text-slate-500 hover:text-red-400 transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getContentBadgeColor(type) {
+            switch(type) {
+                case 'pptx': return 'bg-amber-600';
+                case 'video': return 'bg-blue-600';
+                case 'image': return 'bg-emerald-600';
+                case 'html': return 'bg-indigo-600';
+                default: return 'bg-slate-600';
+            }
+        }
+
+        function filterContent(category) {
+            document.querySelectorAll('.content-filter-btn').forEach(b => {
+                b.className = "content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition";
+            });
+            event.target.className = "content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white transition";
+
+            if (category === 'all') {
+                renderContentGallery(state.contents);
+            } else {
+                renderContentGallery(state.contents.filter(c => c.type === category));
+            }
+        }
+
+        function searchContent(query) {
+            const filtered = state.contents.filter(c => c.title.toLowerCase().includes(query.toLowerCase()));
+            renderContentGallery(filtered);
+        }
+
+        let selectedFile = null;
+
+        function openUploadModal() {
+            document.getElementById('modal-upload').classList.remove('hidden');
+            document.getElementById('upload-progress-box').classList.add('hidden');
+            document.getElementById('btn-start-upload').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('modal-upload').classList.add('hidden');
+        }
+
+        function triggerFileInput() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                showToast(`Archivo seleccionado: ${selectedFile.name}`, 'info');
+            }
+        }
+
+        function startSimulatedUpload() {
+            const progressBox = document.getElementById('upload-progress-box');
+            const progressBar = document.getElementById('upload-progress-bar');
+            const percentText = document.getElementById('upload-status-percent');
+            const titleText = document.getElementById('upload-status-title');
+            const logBox = document.getElementById('upload-terminal-log');
+            const btnStart = document.getElementById('btn-start-upload');
+
+            progressBox.classList.remove('hidden');
+            btnStart.classList.add('hidden');
+
+            const fileName = selectedFile ? selectedFile.name : 'Presentacion_Estrategia_2026.pptx';
+            titleText.innerText = `Procesando ${fileName}...`;
+            logBox.innerHTML = `<div>[SYS] Recibiendo stream HTTP multipart...</div>`;
+
+            let percent = 0;
+            const interval = setInterval(() => {
+                percent += 10;
+                progressBar.style.width = `${percent}%`;
+                percentText.innerText = `${percent}%`;
+
+                if (percent === 20) {
+                    logBox.innerHTML += `<div>[PPTX-WORKER] Archivo detectado como presentación PowerPoint Microsoft.</div>`;
+                } else if (percent === 40) {
+                    logBox.innerHTML += `<div>[LIBREOFFICE] Ejecutando conversión headless (PPTX -> PDF)...</div>`;
+                } else if (percent === 70) {
+                    logBox.innerHTML += `<div>[FFMPEG/IMAGE] Rasterizando slides PDF a WebP 4K (8 diapositivas)...</div>`;
+                } else if (percent === 90) {
+                    logBox.innerHTML += `<div>[CACHE] Guardando miniaturas y optimizando para Smart TV...</div>`;
+                } else if (percent >= 100) {
+                    clearInterval(interval);
+                    logBox.innerHTML += `<div class="text-emerald-300 font-bold">[SUCCESS] ¡Conversión finalizada! Generada presentación interactiva.</div>`;
+
+                    // Add converted presentation to contents
+                    const newPPTX = {
+                        id: `c-${Date.now()}`,
+                        title: fileName.replace('.pptx', ''),
+                        type: 'pptx',
+                        duration: 8,
+                        category: 'Nuevas Cargas',
+                        thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=600&q=80',
+                        slidesCount: 3,
+                        slides: [
+                            { title: 'Diapositiva 1: Estrategia Digital', text: 'Resumen de objetivos del trimestre para pantallas corporativas.', bg: 'from-purple-950 to-slate-950' },
+                            { title: 'Diapositiva 2: Crecimiento y Metas', text: 'Incremento del 25% en productividad y comunicación interna.', bg: 'from-blue-950 to-slate-950' }
+                        ],
+                        status: 'active',
+                        createdAt: new Date().toISOString().split('T')[0]
+                    };
+
+                    state.contents.unshift(newPPTX);
+                    renderContentGallery();
+                    
+                    setTimeout(() => {
+                        closeUploadModal();
+                        showToast('Presentación agregada exitosamente a la biblioteca', 'success');
+                    }, 1200);
+                }
+                logBox.scrollTop = logBox.scrollHeight;
+            }, 350);
+        }
+
+        function updateNoticePreview() {
+            const theme = document.getElementById('announcement-theme').value;
+            const title = document.getElementById('announcement-title').value;
+            const body = document.getElementById('announcement-body').value;
+
+            const box = document.getElementById('notice-preview-box');
+            const iconBadge = document.getElementById('notice-preview-badge-icon');
+            const tag = document.getElementById('notice-preview-tag');
+            const titleEl = document.getElementById('notice-preview-title');
+            const bodyEl = document.getElementById('notice-preview-body');
+
+            titleEl.innerText = title || 'TÍTULO DEL AVISO';
+            bodyEl.innerText = body || 'Texto descriptivo del comunicado corporativo.';
+
+            if (theme === 'urgent') {
+                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-red-950 via-slate-900 to-black border border-red-500/30";
+                iconBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+                iconBadge.className = "w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-lg";
+                tag.innerText = "AVISO URGENTE / SEGURIDAD";
+                tag.className = "text-xs font-bold text-red-400 tracking-wider uppercase";
+            } else if (theme === 'event') {
+                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-indigo-950 via-slate-900 to-black border border-indigo-500/30";
+                iconBadge.innerHTML = `<i class="fa-solid fa-calendar-star"></i>`;
+                iconBadge.className = "w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-lg";
+                tag.innerText = "EVENTO INSTITUCIONAL";
+                tag.className = "text-xs font-bold text-indigo-400 tracking-wider uppercase";
+            } else if (theme === 'recognition') {
+                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-amber-950 via-slate-900 to-black border border-amber-500/30";
+                iconBadge.innerHTML = `<i class="fa-solid fa-award"></i>`;
+                iconBadge.className = "w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg";
+                tag.innerText = "RECONOCIMIENTO CORPORATIVO";
+                tag.className = "text-xs font-bold text-amber-400 tracking-wider uppercase";
+            } else {
+                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-brand-500/30";
+                iconBadge.innerHTML = `<i class="fa-solid fa-newspaper"></i>`;
+                iconBadge.className = "w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/40 flex items-center justify-center text-lg";
+                tag.innerText = "NOTICIA EMPRESARIAL";
+                tag.className = "text-xs font-bold text-brand-400 tracking-wider uppercase";
+            }
+        }
+
+        function saveAnnouncementContent() {
+            const title = document.getElementById('announcement-title').value;
+            const body = document.getElementById('announcement-body').value;
+            const duration = parseInt(document.getElementById('announcement-duration').value) || 10;
+            const category = document.getElementById('announcement-category').value || 'Comunicado';
+            const theme = document.getElementById('announcement-theme').value;
+
+            const newNotice = {
+                id: `c-${Date.now()}`,
+                title: title,
+                type: 'html',
+                theme: theme,
+                duration: duration,
+                category: category,
+                titleText: title,
+                bodyText: body,
+                thumbnail: 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80',
+                status: 'active',
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+
+            state.contents.unshift(newNotice);
+            renderContentGallery();
+            showToast('Comunicado guardado e integrado a la biblioteca', 'success');
+            switchAdminTab('content');
+        }
+
+        function renderPlaylistsTab() {
+            const listContainer = document.getElementById('playlist-list-container');
+            const editorPanel = document.getElementById('playlist-editor-panel');
+            if (!listContainer || !editorPanel) return;
+
+            document.getElementById('kpi-active-playlists').innerText = state.playlists.length;
+
+            listContainer.innerHTML = state.playlists.map((pl, index) => `
+                <div onclick="selectPlaylistForEdit('${pl.id}')" class="p-4 rounded-2xl glass-card border border-slate-800 cursor-pointer hover:border-brand-500 transition ${index === 0 ? 'border-brand-500 bg-brand-600/10' : ''}">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="text-sm font-bold text-white">${pl.name}</div>
+                        <span class="text-[10px] font-mono bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded">${pl.items.length} items</span>
+                    </div>
+                    <div class="text-xs text-slate-400">Pantallas vinculadas: ${pl.targetDevices.length}</div>
+                </div>
+            `).join('');
+
+            // Render details for first playlist
+            if (state.playlists.length > 0) {
+                renderPlaylistEditor(state.playlists[0].id);
+            }
+        }
+
+        function renderPlaylistEditor(playlistId) {
+            const pl = state.playlists.find(p => p.id === playlistId);
+            const editorPanel = document.getElementById('playlist-editor-panel');
+            if (!pl || !editorPanel) return;
+
+            const playlistItems = pl.items.map(itemId => state.contents.find(c => c.id === itemId)).filter(Boolean);
+
+            editorPanel.innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white">${pl.name}</h3>
+                        <p class="text-xs text-slate-400">Arrastra para reordenar o ajusta el tiempo individual de cada slide.</p>
+                    </div>
+                    <button onclick="showToast('Playlist guardada', 'success')" class="px-3 py-1.5 bg-brand-600 text-white rounded-xl text-xs font-semibold">Guardar Cambios</button>
+                </div>
+
+                <div class="space-y-3">
+                    ${playlistItems.map((item, idx) => `
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-xs font-mono text-slate-500 w-4">${idx + 1}</span>
+                                <img src="${item.thumbnail}" class="w-10 h-10 rounded-lg object-cover">
+                                <div>
+                                    <div class="text-xs font-bold text-white">${item.title}</div>
+                                    <div class="text-[10px] text-slate-400">${item.type.toUpperCase()} • ${item.category}</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <div class="flex items-center space-x-1 text-xs text-slate-300">
+                                    <span>Duración:</span>
+                                    <input type="number" value="${item.duration}" class="w-12 bg-slate-950 border border-slate-800 text-center rounded p-1 text-xs">
+                                    <span>s</span>
+                                </div>
+                                <button onclick="removeItemFromPlaylist('${pl.id}', '${item.id}')" class="text-slate-500 hover:text-red-400">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function selectPlaylistForEdit(id) {
+            renderPlaylistEditor(id);
+        }
+
+        function removeItemFromPlaylist(playlistId, contentId) {
+            const pl = state.playlists.find(p => p.id === playlistId);
+            if (pl) {
+                pl.items = pl.items.filter(id => id !== contentId);
+                renderPlaylistEditor(playlistId);
+                showToast('Elemento removido de la lista de reproducción', 'info');
+            }
+        }
+
+        function createNewPlaylistPrompt() {
+            const name = prompt('Ingrese el nombre de la nueva Lista de Reproducción:');
+            if (name) {
+                const newPl = {
+                    id: `pl-${Date.now()}`,
+                    name: name,
+                    targetDevices: ['device-01'],
+                    items: ['c-1', 'c-3']
+                };
+                state.playlists.push(newPl);
+                renderPlaylistsTab();
+                showToast('Playlist creada correctamente', 'success');
+            }
+        }
+
+        function renderDevicesTab() {
+            const grid = document.getElementById('devices-cards-grid');
+            if (!grid) return;
+
+            grid.innerHTML = state.devices.map(d => `
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${d.status === 'online' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400'}">
+                                ${d.status.toUpperCase()}
+                            </span>
+                            <span class="text-xs font-mono text-slate-400">${d.pairingCode}</span>
+                        </div>
+
+                        <h3 class="text-base font-bold text-white">${d.name}</h3>
+                        <p class="text-xs text-slate-400">${d.location}</p>
+
+                        <div class="mt-4 pt-3 border-t border-slate-800/80 space-y-1 text-xs text-slate-300">
+                            <div>Orientación: <span class="font-semibold text-brand-400">${d.orientation}</span></div>
+                            <div>Resolución: <span class="font-mono text-slate-400">${d.resolution}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 pt-2 border-t border-slate-800">
+                        <button onclick="switchViewMode('player'); onSelectedDeviceChange('${d.id}')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-expand"></i>
+                            <span>Abrir Player</span>
+                        </button>
+                        <button onclick="simulateRemoteRestart('${d.id}')" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs" title="Reiniciar TV">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openPairDeviceModal() { document.getElementById('modal-pair-device').classList.remove('hidden'); }
+        function closePairDeviceModal() { document.getElementById('modal-pair-device').classList.add('hidden'); }
+
+        function confirmDevicePairing() {
+            const code = document.getElementById('pair-code-input').value;
+            const name = document.getElementById('pair-name-input').value;
+            const orient = document.getElementById('pair-orient-select').value;
+
+            if (!code || !name) {
+                showToast('Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            const newDev = {
+                id: `device-${Date.now()}`,
+                name: name,
+                location: 'Oficina Registrada',
+                orientation: orient,
+                status: 'online',
+                pairingCode: code.toUpperCase(),
+                activePlaylistId: 'pl-1',
+                resolution: orient === '16:9' ? '1920x1080 (Full HD)' : '1080x1920 (Vertical)'
+            };
+
+            state.devices.push(newDev);
+            renderDevicesTab();
+            renderDashboardDevices();
+            closePairDeviceModal();
+            showToast('Pantalla emparejada y lista para transmitir', 'success');
+        }
+
+        function simulateRemoteRestart(deviceId) {
+            showToast(`Enviando comando de reinicio remoto a ${deviceId}...`, 'info');
+        }
+
+        function startPlayerClock() {
+            setInterval(() => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('es-ES', { hour12: true });
+                const dateStr = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                const clockTime = document.getElementById('player-clock-time');
+                const clockDate = document.getElementById('player-clock-date');
+
+                if (clockTime) clockTime.innerText = timeStr;
+                if (clockDate) clockDate.innerText = dateStr;
+            }, 1000);
+        }
+
+        function onSelectedDeviceChange(deviceId) {
+            state.selectedDeviceId = deviceId;
+            const device = state.devices.find(d => d.id === deviceId);
+            if (device) {
+                document.getElementById('player-screen-label').innerText = device.name;
+                setPlayerOrientation(device.orientation);
+            }
+        }
+
+        function setPlayerOrientation(orient) {
+            state.playerOrientation = orient;
+            const frame = document.getElementById('player-frame');
+            const btn169 = document.getElementById('btn-orient-169');
+            const btn916 = document.getElementById('btn-orient-916');
+
+            if (orient === '9:16') {
+                frame.className = "w-full h-full max-w-[450px] ratio-9-16 bg-slate-950 rounded-2xl border border-slate-800/60 shadow-2xl overflow-hidden relative flex flex-col justify-between transition-all duration-500 mx-auto";
+                btn916.className = "p-1.5 text-xs rounded text-brand-500 bg-slate-800 font-bold";
+                btn169.className = "p-1.5 text-xs rounded text-slate-400 hover:text-white font-bold";
+            } else {
+                frame.className = "w-full h-full max-w-[1400px] ratio-16-9 bg-slate-950 rounded-2xl border border-slate-800/60 shadow-2xl overflow-hidden relative flex flex-col justify-between transition-all duration-500";
+                btn169.className = "p-1.5 text-xs rounded text-brand-500 bg-slate-800 font-bold";
+                btn916.className = "p-1.5 text-xs rounded text-slate-400 hover:text-white font-bold";
+            }
+        }
+
+        function getActivePlaylistForPlayer() {
+            const dev = state.devices.find(d => d.id === state.selectedDeviceId);
+            const playlistId = dev ? dev.activePlaylistId : 'pl-1';
+            const pl = state.playlists.find(p => p.id === playlistId) || state.playlists[0];
+            return pl.items.map(itemId => state.contents.find(c => c.id === itemId)).filter(Boolean);
+        }
+
+        function renderCurrentPlayerSlide() {
+            const items = getActivePlaylistForPlayer();
+            if (items.length === 0) return;
+
+            if (state.playerCurrentSlideIndex >= items.length) {
+                state.playerCurrentSlideIndex = 0;
+            }
+
+            const currentItem = items[state.playerCurrentSlideIndex];
+            const stage = document.getElementById('player-media-stage');
+            const counter = document.getElementById('player-slide-counter');
+
+            if (counter) counter.innerText = `${state.playerCurrentSlideIndex + 1}/${items.length}`;
+
+            if (!stage || !currentItem) return;
+
+            // Render specific item media type
+            if (currentItem.type === 'image') {
+                stage.innerHTML = `
+                    <div class="relative w-full h-full flex items-center justify-center slide-fade-enter">
+                        <img src="${currentItem.imageUrl}" class="w-full h-full object-cover">
+                        <div class="absolute bottom-6 left-6 bg-slate-950/70 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-white">
+                            <div class="text-xs font-bold">${currentItem.title}</div>
+                            <div class="text-[10px] text-brand-400">${currentItem.category}</div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentItem.type === 'video') {
+                stage.innerHTML = `
+                    <div class="relative w-full h-full flex items-center justify-center bg-black slide-fade-enter">
+                        <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                            <source src="${currentItem.videoUrl}" type="video/mp4">
+                        </video>
+                        <div class="absolute bottom-6 left-6 bg-slate-950/70 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-white">
+                            <div class="text-xs font-bold">${currentItem.title}</div>
+                            <div class="text-[10px] text-brand-400"><i class="fa-solid fa-video mr-1"></i>Video Corporativo HD</div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentItem.type === 'pptx') {
+                const slide = currentItem.slides[0];
+                stage.innerHTML = `
+                    <div class="w-full h-full bg-gradient-to-br ${slide.bg} p-8 md:p-16 flex flex-col justify-between text-white slide-fade-enter">
+                        <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                            <span class="text-xs font-mono text-amber-400 uppercase tracking-widest"><i class="fa-solid fa-file-powerpoint mr-2"></i>Diapositiva Interactiva</span>
+                            <span class="text-xs text-slate-400">${currentItem.title}</span>
+                        </div>
+                        <div class="my-auto space-y-4 max-w-3xl">
+                            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">${slide.title}</h1>
+                            <p class="text-base md:text-xl text-slate-300 font-light leading-relaxed">${slide.text}</p>
+                        </div>
+                        <div class="text-[10px] text-slate-500 border-t border-white/10 pt-3 flex justify-between">
+                            <span>PowerPoint Convertido a WebP Engine v2</span>
+                            <span>Slide 1 / ${currentItem.slidesCount}</span>
+                        </div>
+                    </div>
+                `;
+            } else if (currentItem.type === 'html') {
+                stage.innerHTML = `
+                    <div class="w-full h-full bg-gradient-to-br from-red-950 via-slate-950 to-black p-8 md:p-16 flex flex-col justify-between text-white slide-fade-enter">
+                        <div class="flex items-center space-x-3 border-b border-white/10 pb-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-red-400 uppercase tracking-wider">${currentItem.category}</div>
+                                <div class="text-[10px] text-slate-400">Aviso Corporativo Relevante</div>
+                            </div>
+                        </div>
+                        <div class="my-auto space-y-3">
+                            <h1 class="text-3xl md:text-5xl font-extrabold text-white">${currentItem.titleText}</h1>
+                            <p class="text-base md:text-xl text-slate-200 leading-relaxed font-light">${currentItem.bodyText}</p>
+                        </div>
+                        <div class="text-[10px] text-slate-500 border-t border-white/10 pt-3">
+                            Transmisión automatizada NexusSign
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Reset Slide progress timer animation
+            resetProgressTimer(currentItem.duration);
+        }
+
+        function resetProgressTimer(durationSec) {
+            clearInterval(state.playerProgressTimer);
+            state.playerProgressPercent = 0;
+            const pBar = document.getElementById('player-progress-bar');
+
+            const intervalMs = 100;
+            const totalSteps = (durationSec * 1000) / intervalMs;
+            let currentStep = 0;
+
+            state.playerProgressTimer = setInterval(() => {
+                if (!state.playerIsPlaying) return;
+
+                currentStep++;
+                state.playerProgressPercent = (currentStep / totalSteps) * 100;
+                if (pBar) pBar.style.width = `${state.playerProgressPercent}%`;
+
+                if (currentStep >= totalSteps) {
+                    clearInterval(state.playerProgressTimer);
+                    nextPlayerSlide();
+                }
+            }, intervalMs);
+        }
+
+        function startPlayerEngine() {
+            renderCurrentPlayerSlide();
+        }
+
+        function nextPlayerSlide() {
+            const items = getActivePlaylistForPlayer();
+            state.playerCurrentSlideIndex = (state.playerCurrentSlideIndex + 1) % items.length;
+            renderCurrentPlayerSlide();
+        }
+
+        function prevPlayerSlide() {
+            const items = getActivePlaylistForPlayer();
+            state.playerCurrentSlideIndex = (state.playerCurrentSlideIndex - 1 + items.length) % items.length;
+            renderCurrentPlayerSlide();
+        }
+
+        function togglePlayerPause() {
+            state.playerIsPlaying = !state.playerIsPlaying;
+            const icon = document.getElementById('icon-player-playpause');
+            if (icon) {
+                icon.className = state.playerIsPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
+            }
+        }
+
+        function toggleFullScreen() {
+            const elem = document.getElementById('player-frame');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `p-3.5 rounded-xl border text-xs font-semibold shadow-2xl flex items-center space-x-2 transition-all duration-300 pointer-events-auto ${
+                type === 'success' ? 'bg-emerald-950 border-emerald-500/40 text-emerald-300' :
+                type === 'error' ? 'bg-red-950 border-red-500/40 text-red-300' :
+                'bg-slate-900 border-slate-700 text-slate-200'
+            }`;
+
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-check-circle text-emerald-400' : 'fa-info-circle text-brand-400'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
