@@ -459,7 +459,7 @@
                         <div id="player-date" class="text-xs text-slate-300 mt-0.5">Cargando fecha...</div>
                     </div>
                     <div class="text-right bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
-                        <div id="player-clock" class="text-2xl sm:text-3xl font-mono font-bold text-white leading-none">00:00:00</div>
+                        <div id="player-clock" class="text-2xl sm:text-3xl font-mono font-bold text-white leading-none">12:00:00 AM</div>
                         <div class="text-[9px] uppercase tracking-widest text-emerald-400 mt-1">EN VIVO · GLOBAL</div>
                     </div>
                 </div>
@@ -871,7 +871,7 @@
             const now = new Date();
             const clock = document.getElementById('player-clock');
             const date = document.getElementById('player-date');
-            if (clock) clock.innerText = now.toLocaleTimeString('es-DO', {hour12:false});
+            if (clock) clock.innerText = now.toLocaleTimeString('es-DO', {hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true});
             if (date) date.innerText = now.toLocaleDateString('es-DO', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
         }
 
