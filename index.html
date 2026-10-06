@@ -452,15 +452,10 @@
                     </div>
                 </div>
 
-                <!-- RELOJ Y ESTADO -->
-                <div class="absolute top-0 left-0 right-0 z-30 flex items-start justify-between p-5 pointer-events-none">
-                    <div class="bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
-                        <div id="player-company-name" class="text-[10px] uppercase tracking-[0.25em] font-bold text-brand-400">terrerotech</div>
-                        <div id="player-date" class="text-xs text-slate-300 mt-0.5">Cargando fecha...</div>
-                    </div>
-                    <div class="text-right bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
-                        <div id="player-clock" class="text-2xl sm:text-3xl font-mono font-bold text-white leading-none">12:00:00 AM</div>
-                        <div class="text-[9px] uppercase tracking-widest text-emerald-400 mt-1">EN VIVO · GLOBAL</div>
+                <!-- ESTADO EN VIVO -->
+                <div class="absolute top-0 right-0 z-30 p-5 pointer-events-none">
+                    <div class="bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5 text-right">
+                        <div class="text-[9px] uppercase tracking-widest text-emerald-400">EN VIVO · GLOBAL</div>
                     </div>
                 </div>
 
@@ -488,6 +483,14 @@
                     </div>
                     <div class="flex items-center gap-3 shrink-0">
                         <span id="player-content-counter" class="hidden sm:inline text-[10px] font-mono text-slate-400">0/0</span>
+                        <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-1.5">
+                            <div class="text-right leading-none">
+                                <div id="player-clock" class="text-lg sm:text-xl font-mono font-extrabold text-white tracking-tight">12:00:00 PM</div>
+                                <div id="player-date" class="text-[9px] sm:text-[10px] text-slate-300 mt-1 capitalize tracking-wide">Cargando fecha...</div>
+                            </div>
+                            <div class="w-px h-7 bg-white/15"></div>
+                            <div class="text-emerald-400 text-sm" title="Hora local"><i class="fa-regular fa-clock"></i></div>
+                        </div>
                         <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-white text-xs p-2" title="Pantalla completa">
                             <i class="fa-solid fa-expand"></i>
                         </button>
