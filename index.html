@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusSign - Digital Signage & Comunicación Corporativa</title>
+    <title>terrerotech - Digital Signage & Comunicación Corporativa</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -112,7 +112,7 @@
                 <i class="fa-solid fa-tv text-white text-lg"></i>
             </div>
             <div>
-                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-500 bg-clip-text text-transparent">NexusSign</span>
+                <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-500 bg-clip-text text-transparent">terrerotech</span>
                 <span class="hidden sm:inline-block text-xs bg-brand-500/10 text-brand-500 border border-brand-500/30 px-2 py-0.5 rounded-full font-mono ml-2">v2.4 AutoSync</span>
             </div>
         </div>
@@ -180,7 +180,8 @@
                         </div>
                         <div class="hidden md:block overflow-hidden">
                             <div class="text-xs font-semibold text-slate-200 truncate">Admin Corporativo</div>
-                            <div class="text-[10px] text-slate-400 truncate">GitHub AutoSync</div>
+                            <div class="text-[10px] text-slate-400 truncate">terrerotech · GitHub AutoSync</div>
+                            <button onclick="lockAdminPanel()" class="text-[10px] text-red-400 hover:text-red-300 mt-1"><i class="fa-solid fa-lock mr-1"></i>Cerrar panel</button>
                         </div>
                     </div>
                 </div>
@@ -387,6 +388,47 @@
                                 </div>
                             </div>
 
+                            <!-- AVISOS IMPORTANTES -->
+                            <div class="pt-4 border-t border-slate-800">
+                                <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-bullhorn text-amber-400"></i> Aviso importante para el Player
+                                </h4>
+                                <p class="text-[11px] text-slate-500 mt-1">El aviso aparecerá sobre el reproductor en todas las pantallas.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1">Título del aviso</label>
+                                        <input id="notice-title" type="text" value="AVISO IMPORTANTE" maxlength="60"
+                                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1">Mensaje</label>
+                                        <input id="notice-message" type="text" placeholder="Ej.: Mantenimiento programado a las 6:00 PM" maxlength="180"
+                                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mt-3">
+                                    <label class="flex items-center gap-2 text-xs text-slate-300">
+                                        <input id="notice-enabled" type="checkbox" class="accent-brand-600">
+                                        Mostrar aviso en el Player
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SEGURIDAD -->
+                            <div class="pt-4 border-t border-slate-800">
+                                <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-shield-halved text-emerald-400"></i> Seguridad del Panel
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                                    <input id="admin-new-password" type="password" placeholder="Nueva clave (mín. 6 caracteres)"
+                                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                    <button onclick="changeAdminPassword()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold">
+                                        <i class="fa-solid fa-key mr-1"></i> Cambiar clave
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-slate-500 mt-2">Clave inicial: Nexus@2026. Se guarda en este navegador.</p>
+                            </div>
+
                             <div class="flex justify-end space-x-3 pt-3">
                                 <button onclick="saveSettings()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition shadow-lg shadow-brand-600/30">
                                     <i class="fa-solid fa-floppy-disk"></i>
@@ -402,45 +444,120 @@
 
         <!-- VIEW 2: PLAYER VIVO (/player) -->
         <main id="view-player" class="hidden flex-1 bg-black flex flex-col items-center justify-center relative overflow-hidden w-full">
-            <div id="player-frame" class="relative ratio-16-9 max-w-full max-h-full bg-black flex flex-col items-center justify-center overflow-hidden">
-                <div id="player-media-stage" class="w-full h-full flex items-center justify-center">
-                    <!-- Media element rendered dynamically -->
+            <div id="player-frame" class="relative w-full h-full bg-black flex flex-col items-center justify-center overflow-hidden">
+                <div id="player-media-stage" class="absolute inset-0 flex items-center justify-center">
                     <div class="text-center p-8 text-slate-500 space-y-3">
                         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-brand-500"></i>
-                        <p class="text-sm font-medium">Cargando reproductor desde GitHub...</p>
+                        <p class="text-sm font-medium">Cargando reproductor...</p>
                     </div>
                 </div>
 
-                <!-- Footer Ticker / Overlay Banner -->
-                <div class="absolute bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-md border-t border-white/10 px-6 py-2.5 flex items-center justify-between text-white z-20">
-                    <div class="flex items-center space-x-3 overflow-hidden">
-                        <span class="bg-brand-600 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white shrink-0">NexusSign</span>
-                        <span id="player-media-title" class="text-xs font-medium text-slate-200 truncate">Esperando contenidos de /nexussign-content...</span>
+                <!-- RELOJ Y ESTADO -->
+                <div class="absolute top-0 left-0 right-0 z-30 flex items-start justify-between p-5 pointer-events-none">
+                    <div class="bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
+                        <div id="player-company-name" class="text-[10px] uppercase tracking-[0.25em] font-bold text-brand-400">terrerotech</div>
+                        <div id="player-date" class="text-xs text-slate-300 mt-0.5">Cargando fecha...</div>
                     </div>
-                    <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-white text-xs ml-4 shrink-0">
-                        <i class="fa-solid fa-expand"></i>
-                    </button>
+                    <div class="text-right bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
+                        <div id="player-clock" class="text-2xl sm:text-3xl font-mono font-bold text-white leading-none">00:00:00</div>
+                        <div class="text-[9px] uppercase tracking-widest text-emerald-400 mt-1">EN VIVO · GLOBAL</div>
+                    </div>
+                </div>
+
+                <!-- AVISO IMPORTANTE -->
+                <div id="player-important-notice" class="hidden absolute left-5 right-5 bottom-20 z-30">
+                    <div class="bg-red-600/90 backdrop-blur-md border border-red-300/30 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-4">
+                        <div class="shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+                            <i class="fa-solid fa-triangle-exclamation text-white"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div id="player-notice-title" class="text-xs font-extrabold uppercase tracking-wider text-white">AVISO IMPORTANTE</div>
+                            <div id="player-notice-message" class="text-sm sm:text-base font-semibold text-white truncate">Mensaje importante</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOTER PLAYER -->
+                <div class="absolute bottom-0 left-0 right-0 bg-slate-950/85 backdrop-blur-md border-t border-white/10 px-5 py-2.5 flex items-center justify-between text-white z-20">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="bg-brand-600 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white shrink-0">terrerotech</span>
+                        <div class="min-w-0">
+                            <div id="player-media-title" class="text-xs font-medium text-slate-200 truncate">Esperando contenidos...</div>
+                            <div id="player-media-meta" class="text-[9px] text-slate-500 uppercase tracking-wider">Galería global · Reproducción continua</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span id="player-content-counter" class="hidden sm:inline text-[10px] font-mono text-slate-400">0/0</span>
+                        <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-white text-xs p-2" title="Pantalla completa">
+                            <i class="fa-solid fa-expand"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
+    </div>
 
+    <!-- MODAL ACCESO PANEL ADMIN -->
+    <div id="modal-admin-login" class="hidden fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm p-6 rounded-2xl border border-slate-700 shadow-2xl">
+            <div class="text-center mb-5">
+                <div class="mx-auto w-14 h-14 rounded-2xl bg-brand-600/20 border border-brand-500/30 text-brand-400 flex items-center justify-center text-2xl mb-3">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Acceso al Panel Admin</h3>
+                <p class="text-xs text-slate-400 mt-1">Introduce la clave para administrar terrerotech.</p>
+            </div>
+            <input id="admin-password-input" type="password" autocomplete="current-password"
+                   onkeydown="if(event.key==='Enter') authenticateAdmin()"
+                   placeholder="Contraseña"
+                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white text-center tracking-widest focus:border-brand-500 outline-none">
+            <div id="admin-login-error" class="hidden text-center text-xs text-red-400 mt-3">
+                <i class="fa-solid fa-circle-xmark mr-1"></i> Clave incorrecta.
+            </div>
+            <div class="flex gap-2 mt-5">
+                <button onclick="closeAdminLogin()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancelar</button>
+                <button onclick="authenticateAdmin()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Entrar
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        function showToast(message, type='info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const el = document.createElement('div');
+            el.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold bg-slate-900 border-slate-700 text-slate-200`;
+            el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':type==='error'?'fa-circle-xmark':'fa-circle-info'} mr-2"></i>${message}`;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 3500);
+        }
+
         // GLOBAL STATE
         let contentList = [];
         let activeFilter = 'all';
         let currentMediaIndex = 0;
         let slideshowTimer = null;
         let autoSyncIntervalTimer = null;
+        const DEFAULT_ADMIN_PASSWORD = 'Nexus@2026';
+        let adminAuthenticated = false;
 
         // INIT APPLICATION
         document.addEventListener('DOMContentLoaded', () => {
             autoDetectGitHubParams();
             loadSettings();
+            loadNoticeSettings();
+            updatePlayerClock();
+            setInterval(updatePlayerClock, 1000);
             syncGitHubFolder();
             startAutoSyncTimer();
+            // Player es la vista pública; el Panel Admin queda protegido.
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-player').classList.remove('hidden');
+            document.getElementById('btn-mode-player').className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow";
+            startPlayerSlideshow();
         });
 
         // AUTO-DETECT GITHUB USER & REPO FROM GITHUB PAGES URL
@@ -474,7 +591,8 @@
             document.getElementById('github-folder').value = folder;
             document.getElementById('github-branch').value = branch;
             document.getElementById('github-sync-interval').value = syncInterval;
-
+            const duration = localStorage.getItem('nexus_slideshow_duration') || '10';
+            if (document.getElementById('slideshow-duration')) document.getElementById('slideshow-duration').value = duration;
             updateDashHeader();
         }
 
@@ -494,6 +612,8 @@
             const folder = document.getElementById('github-folder').value.trim() || 'nexussign-content';
             const branch = document.getElementById('github-branch').value.trim() || 'main';
             const syncInterval = document.getElementById('github-sync-interval').value;
+            const duration = document.getElementById('slideshow-duration').value || '10';
+            localStorage.setItem('nexus_slideshow_duration', duration);
 
             localStorage.setItem('nexus_gh_owner', owner);
             localStorage.setItem('nexus_gh_repo', repo);
@@ -504,6 +624,8 @@
             updateDashHeader();
             syncGitHubFolder();
             startAutoSyncTimer();
+            saveNoticeSettings();
+            showToast('Configuración guardada correctamente', 'success');
         }
 
         // FETCH CONTENT DIRECTLY FROM GITHUB API
@@ -541,7 +663,7 @@
                 }
                 const data = await response.json();
 
-                const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm'];
+                const validExtensions = ['jpg', 'jpeg', 'png', 'mp4'];
                 
                 contentList = data.filter(item => {
                     if (item.type !== 'file') return false;
@@ -549,7 +671,7 @@
                     return validExtensions.includes(ext);
                 }).map(item => {
                     const ext = item.name.split('.').pop().toLowerCase();
-                    const isVideo = ['mp4', 'webm'].includes(ext);
+                    const isVideo = ['mp4'].includes(ext);
                     return {
                         id: item.sha,
                         name: item.name,
@@ -680,6 +802,11 @@
             const btnAdmin = document.getElementById('btn-mode-admin');
             const btnPlayer = document.getElementById('btn-mode-player');
 
+            if (mode === 'admin' && !adminAuthenticated) {
+                openAdminLogin();
+                return;
+            }
+
             if (mode === 'admin') {
                 adminView.classList.remove('hidden');
                 playerView.classList.add('hidden');
@@ -693,6 +820,92 @@
                 btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white";
                 startPlayerSlideshow();
             }
+        }
+
+        function openAdminLogin() {
+            document.getElementById('modal-admin-login').classList.remove('hidden');
+            const input = document.getElementById('admin-password-input');
+            input.value = '';
+            document.getElementById('admin-login-error').classList.add('hidden');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('modal-admin-login').classList.add('hidden');
+        }
+
+        function authenticateAdmin() {
+            const entered = document.getElementById('admin-password-input').value;
+            const stored = localStorage.getItem('nexus_admin_password') || DEFAULT_ADMIN_PASSWORD;
+            if (entered === stored) {
+                adminAuthenticated = true;
+                sessionStorage.setItem('nexus_admin_authenticated', '1');
+                closeAdminLogin();
+                switchViewMode('admin');
+                showToast('Acceso al panel autorizado', 'success');
+            } else {
+                document.getElementById('admin-login-error').classList.remove('hidden');
+            }
+        }
+
+        function changeAdminPassword() {
+            const input = document.getElementById('admin-new-password');
+            const newPassword = input.value.trim();
+            if (newPassword.length < 6) {
+                showToast('La clave debe tener al menos 6 caracteres', 'error');
+                return;
+            }
+            localStorage.setItem('nexus_admin_password', newPassword);
+            input.value = '';
+            showToast('Clave del Panel Admin actualizada', 'success');
+        }
+
+        function lockAdminPanel() {
+            adminAuthenticated = false;
+            sessionStorage.removeItem('nexus_admin_authenticated');
+            switchViewMode('player');
+        }
+
+        // RELOJ DEL PLAYER
+        function updatePlayerClock() {
+            const now = new Date();
+            const clock = document.getElementById('player-clock');
+            const date = document.getElementById('player-date');
+            if (clock) clock.innerText = now.toLocaleTimeString('es-DO', {hour12:false});
+            if (date) date.innerText = now.toLocaleDateString('es-DO', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+        }
+
+        // AVISOS IMPORTANTES
+        function loadNoticeSettings() {
+            const title = localStorage.getItem('nexus_notice_title') || 'AVISO IMPORTANTE';
+            const message = localStorage.getItem('nexus_notice_message') || '';
+            const enabled = localStorage.getItem('nexus_notice_enabled') === 'true';
+            if (document.getElementById('notice-title')) document.getElementById('notice-title').value = title;
+            if (document.getElementById('notice-message')) document.getElementById('notice-message').value = message;
+            if (document.getElementById('notice-enabled')) document.getElementById('notice-enabled').checked = enabled;
+            renderPlayerNotice();
+        }
+
+        function saveNoticeSettings() {
+            const title = document.getElementById('notice-title')?.value.trim() || 'AVISO IMPORTANTE';
+            const message = document.getElementById('notice-message')?.value.trim() || '';
+            const enabled = !!document.getElementById('notice-enabled')?.checked;
+            localStorage.setItem('nexus_notice_title', title);
+            localStorage.setItem('nexus_notice_message', message);
+            localStorage.setItem('nexus_notice_enabled', enabled ? 'true' : 'false');
+            renderPlayerNotice();
+        }
+
+        function renderPlayerNotice() {
+            const box = document.getElementById('player-important-notice');
+            if (!box) return;
+            const enabled = localStorage.getItem('nexus_notice_enabled') === 'true';
+            const message = localStorage.getItem('nexus_notice_message') || '';
+            box.classList.toggle('hidden', !(enabled && message));
+            const title = document.getElementById('player-notice-title');
+            const text = document.getElementById('player-notice-message');
+            if (title) title.innerText = localStorage.getItem('nexus_notice_title') || 'AVISO IMPORTANTE';
+            if (text) text.innerText = message;
         }
 
         // ADMIN TAB SWITCHER
@@ -729,11 +942,15 @@
             const stage = document.getElementById('player-media-stage');
             const titleLabel = document.getElementById('player-media-title');
 
-            titleLabel.innerText = `${media.name} (${currentMediaIndex + 1}/${contentList.length})`;
+            titleLabel.innerText = `${media.name}`;
+            const counter = document.getElementById('player-content-counter');
+            if (counter) counter.innerText = `${currentMediaIndex + 1}/${contentList.length}`;
+            const meta = document.getElementById('player-media-meta');
+            if (meta) meta.innerText = `${media.type === 'video' ? 'VIDEO MP4' : 'IMAGEN JPG/PNG'} · Galería global · Reproducción continua`;
 
             if (media.type === 'image') {
                 stage.innerHTML = `<img src="${media.url}" class="slide-fade-enter">`;
-                const duration = parseInt(document.getElementById('slideshow-duration').value || '10') * 1000;
+                const duration = parseInt(localStorage.getItem('nexus_slideshow_duration') || document.getElementById('slideshow-duration')?.value || '10') * 1000;
                 
                 slideshowTimer = setTimeout(() => {
                     currentMediaIndex++;
