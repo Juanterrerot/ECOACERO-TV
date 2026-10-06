@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TerreroTECH - Comunicación Corporativa</title>
+    <title>NexusSign - Digital Signage & Comunicación Corporativa</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -103,34 +103,19 @@
         <div class="flex items-center space-x-2 sm:space-x-4">
             <!-- View Mode Selector -->
             <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center">
-                <button id="btn-mode-admin" onclick="switchViewMode('admin')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow">
+                <button id="btn-mode-admin" onclick="switchViewMode('admin')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white">
                     <i class="fa-solid fa-gauge-high"></i>
                     <span class="hidden md:inline">Panel Admin (/admin)</span>
                     <span class="md:hidden">CMS</span>
                 </button>
-                <button id="btn-mode-player" onclick="switchViewMode('player')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white">
+                <button id="btn-mode-player" onclick="switchViewMode('player')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow">
                     <i class="fa-solid fa-play"></i>
                     <span class="hidden md:inline">Reproductor Vivo (/player)</span>
                     <span class="md:hidden">Player</span>
                 </button>
             </div>
 
-            <!-- Screen Target Selector (For Player preview) -->
-            <div id="player-target-selector" class="hidden items-center space-x-2 border-l border-slate-800 pl-3">
-                <div class="text-xs text-slate-400 hidden lg:block">Dispositivo:</div>
-                <select id="select-active-device" onchange="onSelectedDeviceChange(this.value)" class="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand-500 outline-none">
-                    <option value="device-01">TV Recepción Principal (16:9)</option>
-                    <option value="device-02">Tótem Pasillo Norte (9:16)</option>
-                    <option value="device-03">Monitor Cafeteria (16:9)</option>
-                </select>
-
-                <!-- Orientation Toggle -->
-                <div class="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5">
-                    <button id="btn-orient-169" onclick="setPlayerOrientation('16:9')" title="Modo Horizontal 16:9" class="p-1.5 text-xs rounded text-brand-500 bg-slate-800 font-bold">16:9</button>
-                    <button id="btn-orient-916" onclick="setPlayerOrientation('9:16')" title="Modo Vertical 9:16" class="p-1.5 text-xs rounded text-slate-400 hover:text-white font-bold">9:16</button>
-                </div>
-            </div>
-
+            <!-- Global Player: una sola fuente de contenido para todas las pantallas -->
             <!-- Connection Status Indicator -->
             <div class="hidden sm:flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full text-xs text-emerald-400">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
@@ -143,7 +128,7 @@
     <div class="flex-1 flex overflow-hidden relative">
 
         <!-- VIEW 1: ADMIN PORTAL (/admin) -->
-        <main id="view-admin" class="flex-1 flex overflow-hidden w-full">
+        <main id="view-admin" class="hidden flex-1 overflow-hidden w-full">
             
             <!-- Admin Sidebar -->
             <aside class="w-16 md:w-64 bg-slate-900/70 border-r border-slate-800 flex flex-col justify-between shrink-0 transition-all">
@@ -164,13 +149,7 @@
                         <i class="fa-solid fa-pen-to-square w-5 text-center"></i>
                         <span class="hidden md:inline">Creador de Avisos</span>
                     </button>
-
-                    <button onclick="switchAdminTab('playlists')" id="nav-playlists" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                        <i class="fa-solid fa-list-check w-5 text-center"></i>
-                        <span class="hidden md:inline">Playlists y Tiempos</span>
-                    </button>
-
-                    <button onclick="switchAdminTab('devices')" id="nav-devices" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+<button onclick="switchAdminTab('devices')" id="nav-devices" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
                         <i class="fa-solid fa-desktop w-5 text-center"></i>
                         <span class="hidden md:inline">Pantallas / Smart TVs</span>
                     </button>
@@ -190,6 +169,9 @@
                         <div class="hidden md:block overflow-hidden">
                             <div class="text-xs font-semibold text-slate-200 truncate">Admin Corporativo</div>
                             <div class="text-[10px] text-slate-400 truncate">admin@empresa.com</div>
+                            <button onclick="lockAdminPanel()" class="mt-1 text-[10px] text-slate-500 hover:text-red-400 transition">
+                                <i class="fa-solid fa-lock mr-1"></i>Cerrar panel
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -244,12 +226,16 @@
 
                         <div class="glass-card p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
                             <div>
-                                <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Playlists Activas</div>
-                                <div class="text-2xl font-extrabold text-white mt-1" id="kpi-active-playlists">3</div>
+                                <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Galería Global</div>
+                                <div class="text-2xl font-extrabold text-white mt-1" id="kpi-global-active">0</div>
                                 <div class="text-xs text-indigo-400 flex items-center mt-1">
-                                    <i class="fa-solid fa-clock text-[10px] mr-1"></i> Programación al día
+                                    <i class="fa-solid fa-infinity text-[10px] mr-1"></i> Reproducción continua 24/7
                                 </div>
                             </div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-photo-film"></i>
+                            </div>
+                        </div>
                             <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-list-ul"></i>
                             </div>
@@ -447,34 +433,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- TAB 4: PLAYLISTS & SCHEDULING -->
-                <div id="tab-playlists" class="tab-content hidden space-y-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <h1 class="text-2xl font-bold text-white tracking-tight">Listas de Reproducción</h1>
-                            <p class="text-slate-400 text-sm">Organiza el orden de aparición, tiempo de cada diapositiva y asignación de pantallas.</p>
-                        </div>
-                        <button onclick="createNewPlaylistPrompt()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shadow-lg">
-                            <i class="fa-solid fa-folder-plus"></i>
-                            <span>Nueva Playlist</span>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        <!-- Playlist List Selector -->
-                        <div class="lg:col-span-4 space-y-3" id="playlist-list-container">
-                            <!-- Dynamic playlist menu items -->
-                        </div>
-
-                        <!-- Active Playlist Details & Builder -->
-                        <div class="lg:col-span-8 glass-panel p-6 rounded-2xl border border-slate-800 space-y-6" id="playlist-editor-panel">
-                            <!-- Dynamic details injected via JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 5: SMART TVs & DEVICES -->
+                <!-- TAB 4: SMART TVs & DEVICES -->
                 <div id="tab-devices" class="tab-content hidden space-y-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
@@ -492,58 +451,130 @@
                     </div>
                 </div>
 
-                <!-- TAB 6: SETTINGS -->
+                <!-- TAB 5: SETTINGS -->
                 <div id="tab-settings" class="tab-content hidden space-y-6">
                     <div>
-                        <h1 class="text-2xl font-bold text-white tracking-tight">Configuración Global del Sistema</h1>
-                        <p class="text-slate-400 text-sm">Ajustes de servidor, marca corporativa e intervalos de sincronización.</p>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Configuración Global</h1>
+                        <p class="text-slate-400 text-sm">Repositorio, tiempos de reproducción, identidad y operación 24/7.</p>
                     </div>
 
-                    <div class="max-w-3xl glass-panel p-6 rounded-2xl border border-slate-800 space-y-6">
-                        <div class="space-y-4">
+                    <div class="max-w-4xl space-y-6">
+                        <!-- REPOSITORY -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider">Repositorio de Contenido</h3>
+                                    <p class="text-[11px] text-slate-500 mt-1">El reproductor global utilizará este repositorio como fuente de la galería.</p>
+                                </div>
+                                <span id="repository-status" class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-slate-800 text-slate-400">No configurado</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Proveedor</label>
+                                    <select id="repository-provider" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                        <option value="google-drive">Google Drive</option>
+                                        <option value="onedrive">OneDrive</option>
+                                        <option value="generic">URL / Repositorio propio</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs text-slate-400 mb-1">Dirección del repositorio / carpeta compartida</label>
+                                    <input id="repository-url" type="url" placeholder="https://drive.google.com/... o https://1drv.ms/..."
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">URL de manifiesto JSON (opcional)</label>
+                                <input id="repository-manifest-url" type="url" placeholder="https://tu-servidor.com/nexussign-content.json"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                <p class="text-[10px] text-slate-500 mt-1">Para sincronización automática desde el navegador, el manifiesto debe devolver una lista JSON de contenidos y sus URLs públicas.</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 mb-1">Sincronización automática</label>
+                                    <select id="repository-sync-interval" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
+                                        <option value="0">Manual</option>
+                                        <option value="5">Cada 5 minutos</option>
+                                        <option value="15" selected>Cada 15 minutos</option>
+                                        <option value="30">Cada 30 minutos</option>
+                                        <option value="60">Cada 60 minutos</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end gap-2">
+                                    <button onclick="testRepositoryConnection()" class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition">
+                                        <i class="fa-solid fa-plug mr-1"></i> Probar conexión
+                                    </button>
+                                    <button onclick="saveRepositorySettings()" class="flex-1 px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold transition">
+                                        <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Guardar repositorio
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 text-[10px] text-amber-300">
+                                <i class="fa-solid fa-circle-info mr-1"></i>
+                                Una URL de carpeta de Google Drive/OneDrive no permite por sí sola listar archivos desde un HTML estático debido a permisos, autenticación y CORS. Para sincronización real se recomienda usar un manifiesto JSON público o integrar la API del proveedor mediante backend.
+                            </div>
+                        </div>
+
+                        <!-- GLOBAL PLAYER -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Reproductor Global 24/7</h3>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-semibold text-slate-200">Reproducción continua</div>
+                                    <div class="text-[11px] text-slate-500">Todos los contenidos activos de la galería se reproducen en ciclo infinito.</div>
+                                </div>
+                                <input id="setting-global-autoplay" type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-semibold text-slate-200">Caché local offline</div>
+                                    <div class="text-[11px] text-slate-500">Conserva los contenidos disponibles para continuar si se pierde temporalmente Internet.</div>
+                                </div>
+                                <input id="setting-offline-cache" type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded">
+                            </div>
+                        </div>
+
+                        <!-- IDENTITY -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
                             <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Identidad Corporativa</h3>
-                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs text-slate-400 mb-1">Nombre de la Empresa</label>
-                                    <input type="text" value="Empresa Corporativa S.A." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                                    <input id="setting-company-name" type="text" value="Empresa Corporativa S.A." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-400 mb-1">Texto del Marquee / Marquesina Inferior</label>
-                                    <input type="text" id="setting-marquee-text" value="📢 RECORDATORIO: Manta de Seguridad al día • Bienvenidos visitantes de la Sede Central • Reunión General el viernes 16:00 hrs." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                                    <label class="block text-xs text-slate-400 mb-1">Marquesina inferior</label>
+                                    <input type="text" id="setting-marquee-text" value="📢 Bienvenidos • Comunicación Corporativa • Información institucional"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
                                 </div>
                             </div>
+                            <button onclick="saveGlobalSettings()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition">Guardar cambios</button>
                         </div>
 
-                        <div class="space-y-4 pt-2">
-                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Optimización del Reproductor 24/7</h3>
-                            
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-xs font-semibold text-slate-200">Limpieza Automática de Memoria (GC)</div>
-                                    <div class="text-[11px] text-slate-500">Reinicia buffers de canvas y video cada 6 horas para evitar memory leaks en Smart TV.</div>
-                                </div>
-                                <input type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded">
+                        <!-- ADMIN PASSWORD -->
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-5">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider">Seguridad del Panel</h3>
+                                <p class="text-[11px] text-slate-500 mt-1">Cambia la contraseña utilizada para acceder al panel administrativo.</p>
                             </div>
-
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-xs font-semibold text-slate-200">Caché Local Offline (IndexedDB)</div>
-                                    <div class="text-[11px] text-slate-500">Guarda imágenes y diapositivas localmente para continuar en caso de caída de internet.</div>
-                                </div>
-                                <input type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <input id="current-admin-password" type="password" placeholder="Contraseña actual" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none">
+                                <input id="new-admin-password" type="password" placeholder="Nueva contraseña" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none">
+                                <button onclick="changeAdminPassword()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold">Cambiar contraseña</button>
                             </div>
+                            <div class="text-[10px] text-slate-500">Contraseña inicial de esta versión: <span class="font-mono text-slate-300">Nexus@2026</span></div>
                         </div>
-
-                        <button onclick="showToast('Configuración guardada correctamente', 'success')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition">Guardar Cambios</button>
                     </div>
                 </div>
-
             </section>
         </main>
 
         <!-- VIEW 2: LIVE DIGITAL SIGNAGE PLAYER (/player/{device-id}) -->
-        <main id="view-player" class="hidden flex-1 bg-black overflow-hidden flex items-center justify-center relative p-2 md:p-6">
+        <main id="view-player" class="flex-1 bg-black overflow-hidden flex items-center justify-center relative p-2 md:p-6">
             
             <!-- Player Outer Display Frame Wrapper (Handles 16:9 / 9:16 switching) -->
             <div id="player-frame" class="w-full h-full max-w-[1400px] ratio-16-9 bg-slate-950 rounded-2xl border border-slate-800/60 shadow-2xl overflow-hidden relative flex flex-col justify-between transition-all duration-500">
@@ -556,7 +587,7 @@
                             <i class="fa-solid fa-[#0284c7] fa-tv"></i>
                         </div>
                         <div>
-                            <div class="text-xs font-extrabold text-white tracking-wider uppercase">ACME CORP</div>
+                            <div id="player-company-name" class="text-xs font-extrabold text-white tracking-wider uppercase">EMPRESA CORPORATIVA</div>
                             <div class="text-[9px] text-brand-400 font-mono">Digital Signage Feed</div>
                         </div>
                     </div>
@@ -565,13 +596,14 @@
                     <div class="flex items-center space-x-3">
                         <div class="hidden sm:flex items-center space-x-2 backdrop-blur-md bg-slate-950/40 border border-white/10 px-3 py-1.5 rounded-2xl text-xs text-slate-300">
                             <i class="fa-solid fa-location-dot text-brand-400"></i>
-                            <span id="player-screen-label" class="font-medium">TV Recepción Principal</span>
+                            <span id="player-screen-label" class="font-medium">Reproductor Global</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- MAIN DISPLAY MEDIA CANVAS / STAGE -->
                 <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden" id="player-media-stage">
+                    <div class="absolute top-3 right-3 z-20 px-2 py-1 rounded-lg bg-black/40 border border-white/10 text-[9px] text-slate-400 backdrop-blur-sm">GALERÍA GLOBAL</div>
                     <!-- Dynamic rendering stage for Slides, Images, Videos, HTML notices -->
                 </div>
 
@@ -707,6 +739,32 @@
         </div>
     </div>
 
+    <!-- MODAL: ADMIN LOGIN -->
+    <div id="modal-admin-login" class="hidden fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-sm p-7 rounded-2xl border border-slate-700 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-brand-600/20 border border-brand-500/30 flex items-center justify-center text-brand-400 text-xl mb-3">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Panel Administrativo</h3>
+                <p class="text-xs text-slate-400 mt-1">Introduce la contraseña para continuar.</p>
+            </div>
+            <form onsubmit="event.preventDefault(); authenticateAdmin();" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Contraseña</label>
+                    <input id="admin-password-input" type="password" autocomplete="current-password" autofocus
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-brand-500"
+                        placeholder="••••••••••">
+                    <div id="admin-login-error" class="hidden text-[11px] text-red-400 mt-2">Contraseña incorrecta.</div>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-brand-600/20">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Ingresar al panel
+                </button>
+            </form>
+            <div class="mt-4 text-center text-[10px] text-slate-500">Contraseña inicial: <span class="font-mono text-slate-300">Nexus@2026</span></div>
+        </div>
+    </div>
+
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
@@ -779,69 +837,116 @@
                 }
             ],
 
-            // Playlists
-            playlists: [
-                {
-                    id: 'pl-1',
-                    name: 'Playlist Recepción Principal (General)',
-                    targetDevices: ['device-01', 'device-03'],
-                    items: ['c-1', 'c-2', 'c-3', 'c-4']
-                },
-                {
-                    id: 'pl-2',
-                    name: 'Playlist Tótems Verticales Pasillo',
-                    targetDevices: ['device-02'],
-                    items: ['c-3', 'c-4']
-                }
-            ],
-
             // Registered Devices / Smart TVs
             devices: [
-                { id: 'device-01', name: 'TV Recepción Principal', location: 'Hall Central Fl. 1', orientation: '16:9', status: 'online', pairingCode: 'NX-1049', activePlaylistId: 'pl-1', resolution: '3840x2160 (4K)' },
-                { id: 'device-02', name: 'Tótem Pasillo Norte', location: 'Pasillo Torre B', orientation: '9:16', status: 'online', pairingCode: 'NX-8821', activePlaylistId: 'pl-2', resolution: '1080x1920 (Vertical)' },
-                { id: 'device-03', name: 'Monitor Cafeteria', location: 'Comedor Central', orientation: '16:9', status: 'online', pairingCode: 'NX-3302', activePlaylistId: 'pl-1', resolution: '1920x1080 (Full HD)' },
-                { id: 'device-04', name: 'Smart TV Sala Directorio', location: 'Piso 5 VIP', orientation: '16:9', status: 'offline', pairingCode: 'NX-9011', activePlaylistId: 'pl-1', resolution: '3840x2160 (4K)' }
+                { id: 'device-01', name: 'TV Recepción Principal', location: 'Hall Central Fl. 1', orientation: '16:9', status: 'online', pairingCode: 'NX-1049', resolution: '3840x2160 (4K)' },
+                { id: 'device-02', name: 'Tótem Pasillo Norte', location: 'Pasillo Torre B', orientation: '9:16', status: 'online', pairingCode: 'NX-8821', resolution: '1080x1920 (Vertical)' },
+                { id: 'device-03', name: 'Monitor Cafeteria', location: 'Comedor Central', orientation: '16:9', status: 'online', pairingCode: 'NX-3302', resolution: '1920x1080 (Full HD)' },
+                { id: 'device-04', name: 'Smart TV Sala Directorio', location: 'Piso 5 VIP', orientation: '16:9', status: 'offline', pairingCode: 'NX-9011', resolution: '3840x2160 (4K)' }
             ]
         };
 
         window.onload = function() {
+            state.adminAuthenticated = sessionStorage.getItem('nexussign_admin_authenticated') === '1';
+            loadContentsFromStorage();
+            loadRepositorySettings();
             renderDashboardDevices();
             renderContentGallery();
-            renderPlaylistsTab();
             renderDevicesTab();
+            updateGlobalKpis();
             startPlayerClock();
             startPlayerEngine();
+            updateMarquee();
+            const savedCompany = localStorage.getItem('nexussign_company_name');
+            if (savedCompany) {
+                const input = document.getElementById('setting-company-name');
+                const playerCompany = document.getElementById('player-company-name');
+                if (input) input.value = savedCompany;
+                if (playerCompany) playerCompany.innerText = savedCompany;
+            }
         };
 
         function switchViewMode(mode) {
+            if (mode === 'admin' && !state.adminAuthenticated) {
+                openAdminLogin();
+                return;
+            }
+
             state.currentViewMode = mode;
             const adminView = document.getElementById('view-admin');
             const playerView = document.getElementById('view-player');
             const btnAdmin = document.getElementById('btn-mode-admin');
             const btnPlayer = document.getElementById('btn-mode-player');
-            const targetSelector = document.getElementById('player-target-selector');
 
             if (mode === 'admin') {
                 adminView.classList.remove('hidden');
                 playerView.classList.add('hidden');
                 btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow";
                 btnPlayer.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white";
-                targetSelector.classList.add('hidden');
-                targetSelector.classList.remove('flex');
             } else {
                 adminView.classList.add('hidden');
                 playerView.classList.remove('hidden');
                 btnPlayer.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all bg-brand-600 text-white shadow";
                 btnAdmin.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all text-slate-400 hover:text-white";
-                targetSelector.classList.remove('hidden');
-                targetSelector.classList.add('flex');
-                
-                // Refresh player stage
                 renderCurrentPlayerSlide();
             }
         }
 
+        function openAdminLogin() {
+            const modal = document.getElementById('modal-admin-login');
+            const input = document.getElementById('admin-password-input');
+            const error = document.getElementById('admin-login-error');
+            if (modal) modal.classList.remove('hidden');
+            if (error) error.classList.add('hidden');
+            setTimeout(() => input && input.focus(), 50);
+        }
+
+        function closeAdminLogin() {
+            const modal = document.getElementById('modal-admin-login');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function getAdminPassword() {
+            return localStorage.getItem('nexussign_admin_password') || 'Nexus@2026';
+        }
+
+        function authenticateAdmin() {
+            const input = document.getElementById('admin-password-input');
+            const error = document.getElementById('admin-login-error');
+            if (input && input.value === getAdminPassword()) {
+                state.adminAuthenticated = true;
+                sessionStorage.setItem('nexussign_admin_authenticated', '1');
+                closeAdminLogin();
+                input.value = '';
+                switchViewMode('admin');
+            } else if (error) {
+                error.classList.remove('hidden');
+            }
+        }
+
+        function lockAdminPanel() {
+            state.adminAuthenticated = false;
+            sessionStorage.removeItem('nexussign_admin_authenticated');
+            switchViewMode('player');
+            showToast('Panel administrativo bloqueado', 'info');
+        }
+
+        function changeAdminPassword() {
+            const current = document.getElementById('current-admin-password').value;
+            const next = document.getElementById('new-admin-password').value;
+            if (current !== getAdminPassword()) return showToast('La contraseña actual no es correcta', 'error');
+            if (!next || next.length < 6) return showToast('La nueva contraseña debe tener al menos 6 caracteres', 'error');
+            localStorage.setItem('nexussign_admin_password', next);
+            document.getElementById('current-admin-password').value = '';
+            document.getElementById('new-admin-password').value = '';
+            showToast('Contraseña actualizada correctamente', 'success');
+        }
+
         function switchAdminTab(tabId) {
+            if (!state.adminAuthenticated) {
+                openAdminLogin();
+                return;
+            }
             state.activeAdminTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
@@ -883,6 +988,7 @@
             if (!grid) return;
 
             document.getElementById('kpi-total-content').innerText = state.contents.length;
+            updateGlobalKpis();
 
             grid.innerHTML = itemsToRender.map(item => `
                 <div class="glass-card rounded-2xl overflow-hidden border border-slate-800/80 hover:border-slate-700 transition group flex flex-col justify-between">
@@ -905,10 +1011,19 @@
                         </div>
 
                         <!-- Content Info -->
-                        <div class="p-4 space-y-1">
+                        <div class="p-4 space-y-2">
                             <div class="text-xs font-semibold text-brand-400">${item.category}</div>
                             <h4 class="text-sm font-bold text-white line-clamp-1">${item.title}</h4>
                             <div class="text-[10px] text-slate-400">Creado: ${item.createdAt}</div>
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                                <label class="text-[10px] text-slate-400">Tiempo de reproducción</label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" min="1" max="3600" value="${item.duration}" 
+                                        onchange="updateContentDuration('${item.id}', this.value)"
+                                        class="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[10px] text-white text-center outline-none focus:border-brand-500">
+                                    <span class="text-[10px] text-slate-500">seg</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -925,6 +1040,28 @@
             `).join('');
         }
 
+        function deleteContent(contentId) {
+            const item = state.contents.find(c => c.id === contentId);
+            if (!item) return;
+            if (!confirm(`¿Quitar "${item.title}" de la galería global?`)) return;
+            state.contents = state.contents.filter(c => c.id !== contentId);
+            saveContentsToStorage();
+            state.playerCurrentSlideIndex = 0;
+            renderContentGallery();
+            updateGlobalKpis();
+            renderCurrentPlayerSlide();
+            showToast('Contenido retirado de la galería global', 'success');
+        }
+
+        function previewContentModal(contentId) {
+            const item = state.contents.find(c => c.id === contentId);
+            if (!item) return;
+            const message = item.type === 'video'
+                ? `Video: ${item.title}\nDuración configurada: ${item.duration}s\nURL: ${item.videoUrl || 'No configurada'}`
+                : `${item.title}\nTipo: ${item.type.toUpperCase()}\nDuración: ${item.duration}s`;
+            alert(message);
+        }
+
         function getContentBadgeColor(type) {
             switch(type) {
                 case 'pptx': return 'bg-amber-600';
@@ -939,7 +1076,7 @@
             document.querySelectorAll('.content-filter-btn').forEach(b => {
                 b.className = "content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition";
             });
-            event.target.className = "content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white transition";
+            
 
             if (category === 'all') {
                 renderContentGallery(state.contents);
@@ -1106,99 +1243,28 @@
             switchAdminTab('content');
         }
 
-        function renderPlaylistsTab() {
-            const listContainer = document.getElementById('playlist-list-container');
-            const editorPanel = document.getElementById('playlist-editor-panel');
-            if (!listContainer || !editorPanel) return;
-
-            document.getElementById('kpi-active-playlists').innerText = state.playlists.length;
-
-            listContainer.innerHTML = state.playlists.map((pl, index) => `
-                <div onclick="selectPlaylistForEdit('${pl.id}')" class="p-4 rounded-2xl glass-card border border-slate-800 cursor-pointer hover:border-brand-500 transition ${index === 0 ? 'border-brand-500 bg-brand-600/10' : ''}">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="text-sm font-bold text-white">${pl.name}</div>
-                        <span class="text-[10px] font-mono bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded">${pl.items.length} items</span>
-                    </div>
-                    <div class="text-xs text-slate-400">Pantallas vinculadas: ${pl.targetDevices.length}</div>
-                </div>
-            `).join('');
-
-            // Render details for first playlist
-            if (state.playlists.length > 0) {
-                renderPlaylistEditor(state.playlists[0].id);
-            }
+        function updateContentDuration(contentId, value) {
+            const seconds = Math.max(1, Math.min(3600, parseInt(value, 10) || 1));
+            const item = state.contents.find(c => c.id === contentId);
+            if (!item) return;
+            item.duration = seconds;
+            saveContentsToStorage();
+            if (state.currentViewMode === 'player') renderCurrentPlayerSlide();
+            showToast(`Tiempo actualizado: ${seconds} segundos`, 'success');
         }
 
-        function renderPlaylistEditor(playlistId) {
-            const pl = state.playlists.find(p => p.id === playlistId);
-            const editorPanel = document.getElementById('playlist-editor-panel');
-            if (!pl || !editorPanel) return;
-
-            const playlistItems = pl.items.map(itemId => state.contents.find(c => c.id === itemId)).filter(Boolean);
-
-            editorPanel.innerHTML = `
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-white">${pl.name}</h3>
-                        <p class="text-xs text-slate-400">Arrastra para reordenar o ajusta el tiempo individual de cada slide.</p>
-                    </div>
-                    <button onclick="showToast('Playlist guardada', 'success')" class="px-3 py-1.5 bg-brand-600 text-white rounded-xl text-xs font-semibold">Guardar Cambios</button>
-                </div>
-
-                <div class="space-y-3">
-                    ${playlistItems.map((item, idx) => `
-                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-xs font-mono text-slate-500 w-4">${idx + 1}</span>
-                                <img src="${item.thumbnail}" class="w-10 h-10 rounded-lg object-cover">
-                                <div>
-                                    <div class="text-xs font-bold text-white">${item.title}</div>
-                                    <div class="text-[10px] text-slate-400">${item.type.toUpperCase()} • ${item.category}</div>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center space-x-3">
-                                <div class="flex items-center space-x-1 text-xs text-slate-300">
-                                    <span>Duración:</span>
-                                    <input type="number" value="${item.duration}" class="w-12 bg-slate-950 border border-slate-800 text-center rounded p-1 text-xs">
-                                    <span>s</span>
-                                </div>
-                                <button onclick="removeItemFromPlaylist('${pl.id}', '${item.id}')" class="text-slate-500 hover:text-red-400">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+        function saveContentsToStorage() {
+            try { localStorage.setItem('nexussign_contents', JSON.stringify(state.contents)); } catch(e) {}
         }
 
-        function selectPlaylistForEdit(id) {
-            renderPlaylistEditor(id);
-        }
-
-        function removeItemFromPlaylist(playlistId, contentId) {
-            const pl = state.playlists.find(p => p.id === playlistId);
-            if (pl) {
-                pl.items = pl.items.filter(id => id !== contentId);
-                renderPlaylistEditor(playlistId);
-                showToast('Elemento removido de la lista de reproducción', 'info');
-            }
-        }
-
-        function createNewPlaylistPrompt() {
-            const name = prompt('Ingrese el nombre de la nueva Lista de Reproducción:');
-            if (name) {
-                const newPl = {
-                    id: `pl-${Date.now()}`,
-                    name: name,
-                    targetDevices: ['device-01'],
-                    items: ['c-1', 'c-3']
-                };
-                state.playlists.push(newPl);
-                renderPlaylistsTab();
-                showToast('Playlist creada correctamente', 'success');
-            }
+        function loadContentsFromStorage() {
+            try {
+                const saved = localStorage.getItem('nexussign_contents');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) state.contents = parsed;
+                }
+            } catch(e) {}
         }
 
         function renderDevicesTab() {
@@ -1257,7 +1323,6 @@
                 orientation: orient,
                 status: 'online',
                 pairingCode: code.toUpperCase(),
-                activePlaylistId: 'pl-1',
                 resolution: orient === '16:9' ? '1920x1080 (Full HD)' : '1080x1920 (Vertical)'
             };
 
@@ -1270,6 +1335,120 @@
 
         function simulateRemoteRestart(deviceId) {
             showToast(`Enviando comando de reinicio remoto a ${deviceId}...`, 'info');
+        }
+
+        function updateGlobalKpis() {
+            const kpi = document.getElementById('kpi-global-active');
+            if (kpi) kpi.innerText = getGlobalGalleryForPlayer().length;
+        }
+
+        function updateMarquee() {
+            const input = document.getElementById('setting-marquee-text');
+            const target = document.getElementById('player-marquee-text');
+            if (input && target) target.innerText = input.value || 'Comunicación Corporativa';
+        }
+
+        function loadRepositorySettings() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('nexussign_repository') || 'null');
+                if (!saved) return;
+                document.getElementById('repository-provider').value = saved.provider || 'generic';
+                document.getElementById('repository-url').value = saved.url || '';
+                document.getElementById('repository-manifest-url').value = saved.manifestUrl || '';
+                document.getElementById('repository-sync-interval').value = saved.interval || '15';
+                setRepositoryStatus(saved.url ? 'Configurado' : 'No configurado', saved.url ? 'success' : 'idle');
+                if (saved.manifestUrl && Number(saved.interval) > 0) {
+                    if (state.repositorySyncTimer) clearInterval(state.repositorySyncTimer);
+                    state.repositorySyncTimer = setInterval(() => syncRepositoryManifest(false), Number(saved.interval) * 60000);
+                }
+            } catch(e) {}
+        }
+
+        function saveRepositorySettings(showMessage = true) {
+            const provider = document.getElementById('repository-provider').value;
+            const url = document.getElementById('repository-url').value.trim();
+            const manifestUrl = document.getElementById('repository-manifest-url').value.trim();
+            const interval = document.getElementById('repository-sync-interval').value;
+            localStorage.setItem('nexussign_repository', JSON.stringify({provider, url, manifestUrl, interval}));
+            setRepositoryStatus(url ? 'Configurado' : 'No configurado', url ? 'success' : 'idle');
+            if (state.repositorySyncTimer) clearInterval(state.repositorySyncTimer);
+            if (manifestUrl && Number(interval) > 0) {
+                state.repositorySyncTimer = setInterval(() => syncRepositoryManifest(false), Number(interval) * 60000);
+            }
+            if (showMessage) showToast('Repositorio guardado correctamente', 'success');
+            if (manifestUrl) syncRepositoryManifest();
+        }
+
+        function setRepositoryStatus(label, type) {
+            const el = document.getElementById('repository-status');
+            if (!el) return;
+            el.innerText = label;
+            el.className = type === 'success'
+                ? 'px-2 py-1 rounded-lg text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : type === 'error'
+                ? 'px-2 py-1 rounded-lg text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20'
+                : 'px-2 py-1 rounded-lg text-[10px] font-semibold bg-slate-800 text-slate-400';
+        }
+
+        function testRepositoryConnection() {
+            const url = document.getElementById('repository-url').value.trim();
+            const manifest = document.getElementById('repository-manifest-url').value.trim();
+            if (!url && !manifest) return showToast('Introduce una dirección de repositorio o manifiesto', 'error');
+            if (manifest) {
+                syncRepositoryManifest(true);
+            } else {
+                setRepositoryStatus('URL recibida', 'success');
+                showToast('Repositorio configurado. Para listar archivos automáticamente usa un manifiesto JSON o una integración API.', 'info');
+            }
+        }
+
+        async function syncRepositoryManifest(showResult = false) {
+            const manifest = document.getElementById('repository-manifest-url').value.trim();
+            if (!manifest) return;
+            try {
+                const response = await fetch(manifest, {cache: 'no-store'});
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                const items = Array.isArray(data) ? data : (Array.isArray(data.contents) ? data.contents : []);
+                if (!items.length) throw new Error('El manifiesto no contiene contenidos');
+                state.contents = items.map((item, index) => ({
+                    id: item.id || `repo-${index}-${Date.now()}`,
+                    title: item.title || item.name || `Contenido ${index + 1}`,
+                    type: item.type || 'image',
+                    duration: Number(item.duration) || 10,
+                    category: item.category || 'Repositorio',
+                    thumbnail: item.thumbnail || item.url || '',
+                    imageUrl: item.imageUrl || item.url || '',
+                    videoUrl: item.videoUrl || item.url || '',
+                    slides: item.slides || [],
+                    slidesCount: item.slidesCount || (item.slides ? item.slides.length : 0),
+                    titleText: item.titleText || item.title || '',
+                    bodyText: item.bodyText || '',
+                    theme: item.theme || 'news',
+                    status: item.status || 'active',
+                    createdAt: item.createdAt || new Date().toISOString().slice(0,10)
+                }));
+                saveContentsToStorage();
+                renderContentGallery();
+                updateGlobalKpis();
+                state.playerCurrentSlideIndex = 0;
+                renderCurrentPlayerSlide();
+                setRepositoryStatus(`${items.length} contenidos`, 'success');
+                if (showResult) showToast(`Repositorio sincronizado: ${items.length} contenidos`, 'success');
+            } catch (error) {
+                setRepositoryStatus('Error de sincronización', 'error');
+                showToast('No fue posible leer el manifiesto. Verifica URL pública, JSON válido y CORS.', 'error');
+            }
+        }
+
+        function saveGlobalSettings() {
+            localStorage.setItem('nexussign_company_name', document.getElementById('setting-company-name').value);
+            localStorage.setItem('nexussign_marquee', document.getElementById('setting-marquee-text').value);
+            updateMarquee();
+            const company = document.getElementById('setting-company-name')?.value || 'Empresa Corporativa S.A.';
+            const playerCompany = document.getElementById('player-company-name');
+            if (playerCompany) playerCompany.innerText = company;
+            showToast('Configuración global guardada correctamente', 'success');
         }
 
         function startPlayerClock() {
@@ -1312,15 +1491,12 @@
             }
         }
 
-        function getActivePlaylistForPlayer() {
-            const dev = state.devices.find(d => d.id === state.selectedDeviceId);
-            const playlistId = dev ? dev.activePlaylistId : 'pl-1';
-            const pl = state.playlists.find(p => p.id === playlistId) || state.playlists[0];
-            return pl.items.map(itemId => state.contents.find(c => c.id === itemId)).filter(Boolean);
+        function getGlobalGalleryForPlayer() {
+            return state.contents.filter(item => item.status !== 'inactive');
         }
 
         function renderCurrentPlayerSlide() {
-            const items = getActivePlaylistForPlayer();
+            const items = getGlobalGalleryForPlayer();
             if (items.length === 0) return;
 
             if (state.playerCurrentSlideIndex >= items.length) {
@@ -1431,13 +1607,15 @@
         }
 
         function nextPlayerSlide() {
-            const items = getActivePlaylistForPlayer();
+            const items = getGlobalGalleryForPlayer();
+            if (!items.length) return;
             state.playerCurrentSlideIndex = (state.playerCurrentSlideIndex + 1) % items.length;
             renderCurrentPlayerSlide();
         }
 
         function prevPlayerSlide() {
-            const items = getActivePlaylistForPlayer();
+            const items = getGlobalGalleryForPlayer();
+            if (!items.length) return;
             state.playerCurrentSlideIndex = (state.playerCurrentSlideIndex - 1 + items.length) % items.length;
             renderCurrentPlayerSlide();
         }
