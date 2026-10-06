@@ -144,11 +144,6 @@
                         <i class="fa-solid fa-photo-film w-5 text-center"></i>
                         <span class="hidden md:inline">Galería de Contenidos</span>
                     </button>
-
-                    <button onclick="switchAdminTab('announcements')" id="nav-announcements" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                        <i class="fa-solid fa-pen-to-square w-5 text-center"></i>
-                        <span class="hidden md:inline">Creador de Avisos</span>
-                    </button>
 <button onclick="switchAdminTab('devices')" id="nav-devices" class="admin-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-slate-400 hover:bg-slate-800 hover:text-slate-200">
                         <i class="fa-solid fa-desktop w-5 text-center"></i>
                         <span class="hidden md:inline">Pantallas / Smart TVs</span>
@@ -216,7 +211,7 @@
                                 <div class="text-slate-400 text-xs font-medium uppercase tracking-wider">Total de Archivos</div>
                                 <div class="text-2xl font-extrabold text-white mt-1" id="kpi-total-content">12</div>
                                 <div class="text-xs text-brand-400 flex items-center mt-1">
-                                    <i class="fa-solid fa-layer-group text-[10px] mr-1"></i> PPTX, Videos, HTML
+                                    <i class="fa-solid fa-layer-group text-[10px] mr-1"></i> JPG, PNG, MP4
                                 </div>
                             </div>
                             <div class="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center text-xl">
@@ -272,34 +267,30 @@
                             </div>
                         </div>
 
-                        <!-- System Activity & Conversion Status -->
+                        <!-- System Activity & Content Status -->
                         <div class="glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
                             <div>
-                                <h3 class="text-base font-bold text-white mb-1">Servicio de Conversión PPTX/Video</h3>
-                                <p class="text-xs text-slate-400 mb-4">Estado de workers asíncronos y conversiones</p>
+                                <h3 class="text-base font-bold text-white mb-1">Servicio de Contenido</h3>
+                                <p class="text-xs text-slate-400 mb-4">Solo JPG / PNG / MP4 · sin conversión</p>
                                 
                                 <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 space-y-3">
                                     <div class="flex justify-between items-center text-xs">
-                                        <span class="text-slate-300 font-mono"><i class="fa-solid fa-microchip text-brand-500 mr-2"></i>Worker FFmpeg/LibreOffice</span>
+                                        <span class="text-slate-300 font-mono"><i class="fa-solid fa-file-arrow-up text-brand-500 mr-2"></i>Recepción de archivos</span>
                                         <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400">STANDBY</span>
                                     </div>
                                     <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                                         <div class="bg-brand-500 h-1.5 rounded-full w-full"></div>
                                     </div>
-                                    <div class="text-[11px] text-slate-400">Última conversión: <span class="text-slate-200">Presentacion_Seguridad.pptx</span> (8 slides generados a WebP en 3.2s)</div>
+                                    <div class="text-[11px] text-slate-400">Modo: <span class="text-slate-200">archivo original</span></div>
                                 </div>
                             </div>
 
                             <div class="mt-6 pt-4 border-t border-slate-800">
                                 <div class="text-xs font-semibold text-slate-300 mb-2">Acciones Rápidas</div>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button onclick="switchAdminTab('announcements')" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-200 font-medium text-left flex items-center space-x-2 transition">
-                                        <i class="fa-solid fa-bullhorn text-brand-400"></i>
-                                        <span>Crear Aviso Urgente</span>
-                                    </button>
                                     <button onclick="openUploadModal()" class="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-200 font-medium text-left flex items-center space-x-2 transition">
-                                        <i class="fa-solid fa-file-powerpoint text-amber-400"></i>
-                                        <span>Subir Presentación</span>
+                                        <i class="fa-solid fa-cloud-arrow-up text-brand-400"></i>
+                                        <span>Subir Contenido</span>
                                     </button>
                                 </div>
                             </div>
@@ -312,7 +303,7 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h1 class="text-2xl font-bold text-white tracking-tight">Biblioteca de Contenidos</h1>
-                            <p class="text-slate-400 text-sm">Gestiona imágenes, videos, diapositivas de PowerPoint y comunicados corporativos.</p>
+                            <p class="text-slate-400 text-sm">Gestiona imágenes JPG/PNG y videos MP4. Los archivos se reproducen sin conversión.</p>
                         </div>
                         <button onclick="openUploadModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shadow-lg shadow-brand-600/30">
                             <i class="fa-solid fa-plus"></i>
@@ -327,8 +318,6 @@
                             <button onclick="filterContent('all')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white transition">Todos</button>
                             <button onclick="filterContent('image')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Imágenes</button>
                             <button onclick="filterContent('video')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Videos</button>
-                            <button onclick="filterContent('pptx')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Presentaciones</button>
-                            <button onclick="filterContent('html')" class="content-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">Comunicados HTML</button>
                         </div>
 
                         <!-- Search -->
@@ -341,96 +330,6 @@
                     <!-- Content Cards Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="content-cards-grid">
                         <!-- Dynamically rendered content cards -->
-                    </div>
-                </div>
-
-                <!-- TAB 3: ANNOUNCEMENT / NOTICE CREATOR -->
-                <div id="tab-announcements" class="tab-content hidden space-y-6">
-                    <div>
-                        <h1 class="text-2xl font-bold text-white tracking-tight">Creador de Comunicados HTML</h1>
-                        <p class="text-slate-400 text-sm">Diseña avisos institucionales, avisos urgentes y reconocimientos directo en el navegador.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        <!-- Form Editor -->
-                        <div class="lg:col-span-5 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4">
-                            <h3 class="text-base font-bold text-white border-b border-slate-800 pb-3">Configurar Plantilla</h3>
-
-                            <div>
-                                <label class="block text-xs font-medium text-slate-300 mb-1">Estilo / Tema del Aviso</label>
-                                <select id="announcement-theme" onchange="updateNoticePreview()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
-                                    <option value="urgent">🚨 Alerta de Seguridad / Urgente</option>
-                                    <option value="event">🎉 Evento Corporativo</option>
-                                    <option value="recognition">⭐ Reconocimiento a Empleado</option>
-                                    <option value="news">📰 Noticia Institucional</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-medium text-slate-300 mb-1">Título Principal</label>
-                                <input type="text" id="announcement-title" oninput="updateNoticePreview()" value="SIMULACRO DE EVACUACIÓN" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-medium text-slate-300 mb-1">Mensaje / Detalle</label>
-                                <textarea id="announcement-body" oninput="updateNoticePreview()" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">Este viernes a las 10:30 AM se llevará a cabo el simulacro general de evacuación en todas las torres. Favor de mantener la calma y seguir a los brigadistas.</textarea>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Duración (seg)</label>
-                                    <input type="number" id="announcement-duration" value="12" min="5" max="60" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Categoría</label>
-                                    <input type="text" id="announcement-category" value="Seguridad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-brand-500 outline-none">
-                                </div>
-                            </div>
-
-                            <button onclick="saveAnnouncementContent()" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-brand-600/30 transition flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Guardar en Biblioteca de Contenidos</span>
-                            </button>
-                        </div>
-
-                        <!-- Live Interactive Canvas Preview -->
-                        <div class="lg:col-span-7 glass-panel p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
-                            <div>
-                                <div class="flex justify-between items-center mb-3">
-                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Vista Previa en Vivo (Pantalla 16:9)</h3>
-                                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded">WYSIWYG</span>
-                                </div>
-                                
-                                <!-- Preview Canvas Box -->
-                                <div id="notice-preview-box" class="w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-red-950 via-slate-900 to-black border border-red-500/30">
-                                    <!-- Background decorative pattern -->
-                                    <div class="absolute inset-0 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
-
-                                    <div class="relative z-10 flex justify-between items-center border-b border-white/10 pb-4">
-                                        <div class="flex items-center space-x-3">
-                                            <div id="notice-preview-badge-icon" class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-lg">
-                                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                            </div>
-                                            <div>
-                                                <div id="notice-preview-tag" class="text-xs font-bold text-red-400 tracking-wider uppercase">AVISO DE SEGURIDAD</div>
-                                                <div class="text-[10px] text-slate-400">COMUNICACIÓN INTERNA HQ</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-right text-xs text-slate-400">NEXUS SIGN</div>
-                                    </div>
-
-                                    <div class="relative z-10 my-auto py-4">
-                                        <h2 id="notice-preview-title" class="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-3">SIMULACRO DE EVACUACIÓN</h2>
-                                        <p id="notice-preview-body" class="text-sm md:text-base text-slate-200 leading-relaxed font-light">Este viernes a las 10:30 AM se llevará a cabo el simulacro general de evacuación en todas las torres. Favor de mantener la calma y seguir a los brigadistas.</p>
-                                    </div>
-
-                                    <div class="relative z-10 flex justify-between items-center text-[10px] text-slate-400 border-t border-white/10 pt-3">
-                                        <span>Validez: Hoy durante todo el día</span>
-                                        <span>Código: COM-2026-99</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <!-- TAB 4: SMART TVs & DEVICES -->
@@ -667,43 +566,39 @@
 
     </div>
 
-    <!-- MODAL: UPLOAD FILE & PPTX CONVERTER SIMULATION -->
+    <!-- MODAL: UPLOAD JPG / PNG / MP4 -->
     <div id="modal-upload" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-xl p-6 rounded-2xl border border-slate-800 shadow-2xl relative space-y-5">
             <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
 
             <div>
-                <h3 class="text-lg font-bold text-white">Subir Nuevo Contenido / Presentación PPTX</h3>
-                <p class="text-xs text-slate-400">El sistema procesará e identificará automáticamente imágenes, MP4 o PowerPoint.</p>
+                <h3 class="text-lg font-bold text-white">Subir Nuevo Contenido</h3>
+                <p class="text-xs text-slate-400">Solo se permiten archivos JPG, PNG y MP4. No se realiza ninguna conversión.</p>
             </div>
 
             <!-- Upload Dropzone -->
             <div id="dropzone" onclick="triggerFileInput()" class="border-2 border-dashed border-slate-700 hover:border-brand-500 bg-slate-900/50 rounded-2xl p-8 text-center cursor-pointer transition group">
                 <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-500 group-hover:text-brand-500 transition mb-2"></i>
                 <div class="text-sm font-semibold text-slate-200">Arrastra archivos aquí o haz clic para seleccionar</div>
-                <div class="text-xs text-slate-500 mt-1">Formatos soportados: PPTX, PPT, MP4, WEBM, PNG, JPG</div>
-                <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+                <div class="text-xs text-slate-500 mt-1">Formatos soportados: JPG, PNG y MP4</div>
+                <input type="file" id="file-input" class="hidden" accept=".jpg,.jpeg,.png,.mp4,image/jpeg,image/png,video/mp4" onchange="handleFileSelect(event)">
             </div>
 
-            <!-- Conversion Progress Simulator Box -->
-            <div id="upload-progress-box" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3">
+            <!-- Selected file status -->
+            <div id="upload-progress-box" class="hidden bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-2">
                 <div class="flex justify-between items-center text-xs">
-                    <span id="upload-status-title" class="font-semibold text-brand-400 font-mono">Procesando Presentacion_Corporativa.pptx...</span>
-                    <span id="upload-status-percent" class="font-bold text-white">0%</span>
+                    <span id="upload-status-title" class="font-semibold text-brand-400 font-mono">Archivo seleccionado</span>
+                    <span id="upload-status-percent" class="font-bold text-emerald-400">Listo</span>
                 </div>
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div id="upload-progress-bar" class="bg-gradient-to-r from-brand-600 to-indigo-500 h-full w-0 transition-all duration-300"></div>
-                </div>
-                <!-- Conversion Terminal Output simulation -->
-                <div id="upload-terminal-log" class="bg-black/80 rounded-lg p-2.5 font-mono text-[10px] text-emerald-400 space-y-1 h-24 overflow-y-auto border border-slate-800/80">
-                    <div>[SYS] Inicializando receptor de archivos...</div>
+                <div id="upload-terminal-log" class="bg-black/80 rounded-lg p-2.5 font-mono text-[10px] text-emerald-400 border border-slate-800/80">
+                    No se realizará conversión. El archivo original se utilizará directamente.
                 </div>
             </div>
 
             <!-- Modal Actions -->
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="closeUploadModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancelar</button>
-                <button id="btn-start-upload" onclick="startSimulatedUpload()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg">Iniciar Carga y Conversión</button>
+                <button id="btn-start-upload" onclick="startUpload()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-semibold shadow-lg">Agregar a la Galería</button>
             </div>
         </div>
     </div>
@@ -785,22 +680,6 @@
             // Initial Content Mock Data
             contents: [
                 {
-                    id: 'c-1',
-                    title: 'Presentación Seguridad e Higiene 2026',
-                    type: 'pptx',
-                    duration: 8, // seconds per slide
-                    category: 'Capacitación',
-                    thumbnail: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=600&q=80',
-                    slidesCount: 3,
-                    slides: [
-                        { title: 'Protocolos de Seguridad 2026', text: 'Paso 1: Identificación de salidas de emergencia y uso de equipo de protección.', bg: 'from-blue-950 to-slate-950' },
-                        { title: 'Prevención de Riesgos', text: 'Paso 2: Mantener vías de evacuación despejadas en todo momento.', bg: 'from-indigo-950 to-slate-950' },
-                        { title: 'Contactos de Emergencia', text: 'Línea Directa Anexo 911 • Servicio Médico Sede Central.', bg: 'from-slate-900 to-black' }
-                    ],
-                    status: 'active',
-                    createdAt: '2026-10-01'
-                },
-                {
                     id: 'c-2',
                     title: 'Video Institucional - Innovación & Metas Q3',
                     type: 'video',
@@ -810,19 +689,6 @@
                     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
                     status: 'active',
                     createdAt: '2026-09-28'
-                },
-                {
-                    id: 'c-3',
-                    title: 'Comunicado: Simulacro Evacuación',
-                    type: 'html',
-                    theme: 'urgent',
-                    duration: 10,
-                    category: 'Seguridad',
-                    titleText: 'SIMULACRO DE EVACUACIÓN',
-                    bodyText: 'Este viernes a las 10:30 AM se llevará a cabo el simulacro general de evacuación en todas las torres.',
-                    thumbnail: 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80',
-                    status: 'active',
-                    createdAt: '2026-10-04'
                 },
                 {
                     id: 'c-4',
@@ -846,9 +712,10 @@
             ]
         };
 
-        window.onload = function() {
+        window.onload = async function() {
             state.adminAuthenticated = sessionStorage.getItem('nexussign_admin_authenticated') === '1';
             loadContentsFromStorage();
+            await restoreUploadedBlobs();
             loadRepositorySettings();
             renderDashboardDevices();
             renderContentGallery();
@@ -999,10 +866,9 @@
                             
                             <!-- Content Type Badge -->
                             <div class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-white shadow-md ${getContentBadgeColor(item.type)}">
-                                ${item.type === 'pptx' ? '<i class="fa-solid fa-file-powerpoint mr-1"></i>PPTX' : ''}
+                                
                                 ${item.type === 'video' ? '<i class="fa-solid fa-video mr-1"></i>Video' : ''}
                                 ${item.type === 'image' ? '<i class="fa-solid fa-image mr-1"></i>Imagen' : ''}
-                                ${item.type === 'html' ? '<i class="fa-solid fa-code mr-1"></i>Aviso HTML' : ''}
                             </div>
 
                             <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded text-[10px] font-mono bg-black/70 text-slate-200">
@@ -1045,6 +911,7 @@
             if (!item) return;
             if (!confirm(`¿Quitar "${item.title}" de la galería global?`)) return;
             state.contents = state.contents.filter(c => c.id !== contentId);
+            if (item.blobId) deleteUploadedBlob(item.blobId);
             saveContentsToStorage();
             state.playerCurrentSlideIndex = 0;
             renderContentGallery();
@@ -1064,10 +931,8 @@
 
         function getContentBadgeColor(type) {
             switch(type) {
-                case 'pptx': return 'bg-amber-600';
                 case 'video': return 'bg-blue-600';
                 case 'image': return 'bg-emerald-600';
-                case 'html': return 'bg-indigo-600';
                 default: return 'bg-slate-600';
             }
         }
@@ -1091,15 +956,29 @@
         }
 
         let selectedFile = null;
+        let selectedFilePreviewUrl = null;
+
+        const ALLOWED_UPLOAD_TYPES = {
+            'image/jpeg': 'image',
+            'image/png': 'image',
+            'video/mp4': 'video'
+        };
 
         function openUploadModal() {
             document.getElementById('modal-upload').classList.remove('hidden');
             document.getElementById('upload-progress-box').classList.add('hidden');
             document.getElementById('btn-start-upload').classList.remove('hidden');
+            document.getElementById('file-input').value = '';
+            selectedFile = null;
         }
 
         function closeUploadModal() {
             document.getElementById('modal-upload').classList.add('hidden');
+            if (selectedFilePreviewUrl) {
+                URL.revokeObjectURL(selectedFilePreviewUrl);
+                selectedFilePreviewUrl = null;
+            }
+            selectedFile = null;
         }
 
         function triggerFileInput() {
@@ -1107,140 +986,85 @@
         }
 
         function handleFileSelect(e) {
-            if (e.target.files.length > 0) {
-                selectedFile = e.target.files[0];
-                showToast(`Archivo seleccionado: ${selectedFile.name}`, 'info');
-            }
-        }
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
 
-        function startSimulatedUpload() {
+            const normalizedType = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
+            const extension = file.name.split('.').pop().toLowerCase();
+            const validExtension = ['jpg', 'jpeg', 'png', 'mp4'].includes(extension);
+            const validType = !!ALLOWED_UPLOAD_TYPES[normalizedType];
+
+            if (!validExtension || !validType) {
+                e.target.value = '';
+                selectedFile = null;
+                showToast('Formato no permitido. Solo JPG, PNG y MP4.', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            const typeLabel = ALLOWED_UPLOAD_TYPES[normalizedType] === 'video' ? 'MP4' : (extension.toUpperCase() === 'JPEG' ? 'JPG' : extension.toUpperCase());
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
             const progressBox = document.getElementById('upload-progress-box');
-            const progressBar = document.getElementById('upload-progress-bar');
-            const percentText = document.getElementById('upload-status-percent');
             const titleText = document.getElementById('upload-status-title');
+            const percentText = document.getElementById('upload-status-percent');
             const logBox = document.getElementById('upload-terminal-log');
-            const btnStart = document.getElementById('btn-start-upload');
 
             progressBox.classList.remove('hidden');
-            btnStart.classList.add('hidden');
-
-            const fileName = selectedFile ? selectedFile.name : 'Presentacion_Estrategia_2026.pptx';
-            titleText.innerText = `Procesando ${fileName}...`;
-            logBox.innerHTML = `<div>[SYS] Recibiendo stream HTTP multipart...</div>`;
-
-            let percent = 0;
-            const interval = setInterval(() => {
-                percent += 10;
-                progressBar.style.width = `${percent}%`;
-                percentText.innerText = `${percent}%`;
-
-                if (percent === 20) {
-                    logBox.innerHTML += `<div>[PPTX-WORKER] Archivo detectado como presentación PowerPoint Microsoft.</div>`;
-                } else if (percent === 40) {
-                    logBox.innerHTML += `<div>[LIBREOFFICE] Ejecutando conversión headless (PPTX -> PDF)...</div>`;
-                } else if (percent === 70) {
-                    logBox.innerHTML += `<div>[FFMPEG/IMAGE] Rasterizando slides PDF a WebP 4K (8 diapositivas)...</div>`;
-                } else if (percent === 90) {
-                    logBox.innerHTML += `<div>[CACHE] Guardando miniaturas y optimizando para Smart TV...</div>`;
-                } else if (percent >= 100) {
-                    clearInterval(interval);
-                    logBox.innerHTML += `<div class="text-emerald-300 font-bold">[SUCCESS] ¡Conversión finalizada! Generada presentación interactiva.</div>`;
-
-                    // Add converted presentation to contents
-                    const newPPTX = {
-                        id: `c-${Date.now()}`,
-                        title: fileName.replace('.pptx', ''),
-                        type: 'pptx',
-                        duration: 8,
-                        category: 'Nuevas Cargas',
-                        thumbnail: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=600&q=80',
-                        slidesCount: 3,
-                        slides: [
-                            { title: 'Diapositiva 1: Estrategia Digital', text: 'Resumen de objetivos del trimestre para pantallas corporativas.', bg: 'from-purple-950 to-slate-950' },
-                            { title: 'Diapositiva 2: Crecimiento y Metas', text: 'Incremento del 25% en productividad y comunicación interna.', bg: 'from-blue-950 to-slate-950' }
-                        ],
-                        status: 'active',
-                        createdAt: new Date().toISOString().split('T')[0]
-                    };
-
-                    state.contents.unshift(newPPTX);
-                    renderContentGallery();
-                    
-                    setTimeout(() => {
-                        closeUploadModal();
-                        showToast('Presentación agregada exitosamente a la biblioteca', 'success');
-                    }, 1200);
-                }
-                logBox.scrollTop = logBox.scrollHeight;
-            }, 350);
+            titleText.innerText = file.name;
+            percentText.innerText = typeLabel;
+            logBox.innerHTML = `<div>[OK] ${typeLabel} detectado · ${sizeMB} MB</div><div>[INFO] Sin conversión: se utilizará el archivo original.</div>`;
+            showToast(`Archivo seleccionado: ${file.name}`, 'info');
         }
 
-        function updateNoticePreview() {
-            const theme = document.getElementById('announcement-theme').value;
-            const title = document.getElementById('announcement-title').value;
-            const body = document.getElementById('announcement-body').value;
-
-            const box = document.getElementById('notice-preview-box');
-            const iconBadge = document.getElementById('notice-preview-badge-icon');
-            const tag = document.getElementById('notice-preview-tag');
-            const titleEl = document.getElementById('notice-preview-title');
-            const bodyEl = document.getElementById('notice-preview-body');
-
-            titleEl.innerText = title || 'TÍTULO DEL AVISO';
-            bodyEl.innerText = body || 'Texto descriptivo del comunicado corporativo.';
-
-            if (theme === 'urgent') {
-                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-red-950 via-slate-900 to-black border border-red-500/30";
-                iconBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
-                iconBadge.className = "w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-lg";
-                tag.innerText = "AVISO URGENTE / SEGURIDAD";
-                tag.className = "text-xs font-bold text-red-400 tracking-wider uppercase";
-            } else if (theme === 'event') {
-                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-indigo-950 via-slate-900 to-black border border-indigo-500/30";
-                iconBadge.innerHTML = `<i class="fa-solid fa-calendar-star"></i>`;
-                iconBadge.className = "w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-lg";
-                tag.innerText = "EVENTO INSTITUCIONAL";
-                tag.className = "text-xs font-bold text-indigo-400 tracking-wider uppercase";
-            } else if (theme === 'recognition') {
-                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-amber-950 via-slate-900 to-black border border-amber-500/30";
-                iconBadge.innerHTML = `<i class="fa-solid fa-award"></i>`;
-                iconBadge.className = "w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg";
-                tag.innerText = "RECONOCIMIENTO CORPORATIVO";
-                tag.className = "text-xs font-bold text-amber-400 tracking-wider uppercase";
-            } else {
-                box.className = "w-full ratio-16-9 rounded-2xl p-8 flex flex-col justify-between text-white shadow-2xl relative overflow-hidden transition-all bg-gradient-to-br from-slate-900 via-slate-950 to-black border border-brand-500/30";
-                iconBadge.innerHTML = `<i class="fa-solid fa-newspaper"></i>`;
-                iconBadge.className = "w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/40 flex items-center justify-center text-lg";
-                tag.innerText = "NOTICIA EMPRESARIAL";
-                tag.className = "text-xs font-bold text-brand-400 tracking-wider uppercase";
+        async function startUpload() {
+            if (!selectedFile) {
+                showToast('Selecciona primero un archivo JPG, PNG o MP4.', 'error');
+                return;
             }
-        }
 
-        function saveAnnouncementContent() {
-            const title = document.getElementById('announcement-title').value;
-            const body = document.getElementById('announcement-body').value;
-            const duration = parseInt(document.getElementById('announcement-duration').value) || 10;
-            const category = document.getElementById('announcement-category').value || 'Comunicado';
-            const theme = document.getElementById('announcement-theme').value;
+            const normalizedType = selectedFile.type === 'image/jpg' ? 'image/jpeg' : selectedFile.type;
+            const mediaType = ALLOWED_UPLOAD_TYPES[normalizedType];
+            if (!mediaType) {
+                showToast('Formato no permitido. Solo JPG, PNG y MP4.', 'error');
+                return;
+            }
 
-            const newNotice = {
+            if (selectedFilePreviewUrl) URL.revokeObjectURL(selectedFilePreviewUrl);
+            selectedFilePreviewUrl = URL.createObjectURL(selectedFile);
+
+            const newContent = {
                 id: `c-${Date.now()}`,
-                title: title,
-                type: 'html',
-                theme: theme,
-                duration: duration,
-                category: category,
-                titleText: title,
-                bodyText: body,
-                thumbnail: 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80',
+                title: selectedFile.name.replace(/\.[^/.]+$/, ''),
+                type: mediaType,
+                duration: mediaType === 'video' ? 30 : 10,
+                category: 'Nuevas Cargas',
                 status: 'active',
-                createdAt: new Date().toISOString().split('T')[0]
+                createdAt: new Date().toISOString().split('T')[0],
+                blobId: `blob-${Date.now()}`
             };
 
-            state.contents.unshift(newNotice);
+            if (mediaType === 'image') {
+                newContent.imageUrl = selectedFilePreviewUrl;
+                newContent.thumbnail = selectedFilePreviewUrl;
+            } else {
+                newContent.videoUrl = selectedFilePreviewUrl;
+                newContent.thumbnail = '';
+            }
+
+            const stored = await saveUploadedBlob(newContent.blobId, selectedFile);
+            if (!stored) {
+                showToast('No se pudo guardar el archivo localmente.', 'error');
+                return;
+            }
+            state.contents.unshift(newContent);
+            saveContentsToStorage();
             renderContentGallery();
-            showToast('Comunicado guardado e integrado a la biblioteca', 'success');
-            switchAdminTab('content');
+            updateDashboardKPIs();
+            resetPlayer();
+            renderPlayer();
+
+            closeUploadModal();
+            showToast('Contenido agregado sin conversión. Se usa el archivo original.', 'success');
         }
 
         function updateContentDuration(contentId, value) {
@@ -1253,6 +1077,77 @@
             showToast(`Tiempo actualizado: ${seconds} segundos`, 'success');
         }
 
+        const CONTENT_DB_NAME = 'NexusSignContentDB';
+        const CONTENT_DB_STORE = 'files';
+
+        function openContentDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(CONTENT_DB_NAME, 1);
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+                    if (!db.objectStoreNames.contains(CONTENT_DB_STORE)) {
+                        db.createObjectStore(CONTENT_DB_STORE, { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function saveUploadedBlob(id, file) {
+            try {
+                const db = await openContentDB();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(CONTENT_DB_STORE, 'readwrite');
+                    tx.objectStore(CONTENT_DB_STORE).put({ id, blob: file, name: file.name, type: file.type });
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+                return true;
+            } catch (e) {
+                console.error('No se pudo guardar el archivo local:', e);
+                return false;
+            }
+        }
+
+        async function deleteUploadedBlob(id) {
+            if (!id) return;
+            try {
+                const db = await openContentDB();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction(CONTENT_DB_STORE, 'readwrite');
+                    tx.objectStore(CONTENT_DB_STORE).delete(id);
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+            } catch (e) {}
+        }
+
+        async function restoreUploadedBlobs() {
+            try {
+                const db = await openContentDB();
+                const records = await new Promise((resolve, reject) => {
+                    const tx = db.transaction(CONTENT_DB_STORE, 'readonly');
+                    const req = tx.objectStore(CONTENT_DB_STORE).getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => reject(req.error);
+                });
+                db.close();
+                records.forEach(record => {
+                    const item = state.contents.find(c => c.blobId === record.id);
+                    if (!item) return;
+                    const url = URL.createObjectURL(record.blob);
+                    if (item.type === 'video') item.videoUrl = url;
+                    else item.imageUrl = url;
+                    item.thumbnail = url;
+                });
+                renderContentGallery();
+                renderCurrentPlayerSlide();
+            } catch (e) {}
+        }
+
         function saveContentsToStorage() {
             try { localStorage.setItem('nexussign_contents', JSON.stringify(state.contents)); } catch(e) {}
         }
@@ -1262,7 +1157,9 @@
                 const saved = localStorage.getItem('nexussign_contents');
                 if (saved) {
                     const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed)) state.contents = parsed;
+                    if (Array.isArray(parsed)) {
+                        state.contents = parsed.filter(item => item && (item.type === 'image' || item.type === 'video'));
+                    }
                 }
             } catch(e) {}
         }
@@ -1410,11 +1307,16 @@
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 const items = Array.isArray(data) ? data : (Array.isArray(data.contents) ? data.contents : []);
-                if (!items.length) throw new Error('El manifiesto no contiene contenidos');
-                state.contents = items.map((item, index) => ({
+                const supportedItems = items.filter(item => {
+                    const t = String(item.type || '').toLowerCase();
+                    const url = String(item.url || item.imageUrl || item.videoUrl || '').toLowerCase();
+                    return t === 'image' || t === 'video' || /\.(jpe?g|png|mp4)(\?|$)/.test(url);
+                });
+                if (!supportedItems.length) throw new Error('El manifiesto no contiene JPG, PNG o MP4');
+                state.contents = supportedItems.map((item, index) => ({
                     id: item.id || `repo-${index}-${Date.now()}`,
                     title: item.title || item.name || `Contenido ${index + 1}`,
-                    type: item.type || 'image',
+                    type: String(item.type || '').toLowerCase() === 'video' ? 'video' : 'image',
                     duration: Number(item.duration) || 10,
                     category: item.category || 'Repositorio',
                     thumbnail: item.thumbnail || item.url || '',
@@ -1515,7 +1417,7 @@
             if (currentItem.type === 'image') {
                 stage.innerHTML = `
                     <div class="relative w-full h-full flex items-center justify-center slide-fade-enter">
-                        <img src="${currentItem.imageUrl}" class="w-full h-full object-cover">
+                        <img src="${currentItem.imageUrl || currentItem.thumbnail || ''}" class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-6 bg-slate-950/70 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-white">
                             <div class="text-xs font-bold">${currentItem.title}</div>
                             <div class="text-[10px] text-brand-400">${currentItem.category}</div>
@@ -1526,7 +1428,7 @@
                 stage.innerHTML = `
                     <div class="relative w-full h-full flex items-center justify-center bg-black slide-fade-enter">
                         <video autoplay loop muted playsinline class="w-full h-full object-cover">
-                            <source src="${currentItem.videoUrl}" type="video/mp4">
+                            <source src="${currentItem.videoUrl || currentItem.url || ''}" type="video/mp4">
                         </video>
                         <div class="absolute bottom-6 left-6 bg-slate-950/70 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-white">
                             <div class="text-xs font-bold">${currentItem.title}</div>
@@ -1534,104 +1436,6 @@
                         </div>
                     </div>
                 `;
-            } else if (currentItem.type === 'pptx') {
-                const slide = currentItem.slides[0];
-                stage.innerHTML = `
-                    <div class="w-full h-full bg-gradient-to-br ${slide.bg} p-8 md:p-16 flex flex-col justify-between text-white slide-fade-enter">
-                        <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                            <span class="text-xs font-mono text-amber-400 uppercase tracking-widest"><i class="fa-solid fa-file-powerpoint mr-2"></i>Diapositiva Interactiva</span>
-                            <span class="text-xs text-slate-400">${currentItem.title}</span>
-                        </div>
-                        <div class="my-auto space-y-4 max-w-3xl">
-                            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">${slide.title}</h1>
-                            <p class="text-base md:text-xl text-slate-300 font-light leading-relaxed">${slide.text}</p>
-                        </div>
-                        <div class="text-[10px] text-slate-500 border-t border-white/10 pt-3 flex justify-between">
-                            <span>PowerPoint Convertido a WebP Engine v2</span>
-                            <span>Slide 1 / ${currentItem.slidesCount}</span>
-                        </div>
-                    </div>
-                `;
-            } else if (currentItem.type === 'html') {
-                stage.innerHTML = `
-                    <div class="w-full h-full bg-gradient-to-br from-red-950 via-slate-950 to-black p-8 md:p-16 flex flex-col justify-between text-white slide-fade-enter">
-                        <div class="flex items-center space-x-3 border-b border-white/10 pb-4">
-                            <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 flex items-center justify-center text-lg">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-red-400 uppercase tracking-wider">${currentItem.category}</div>
-                                <div class="text-[10px] text-slate-400">Aviso Corporativo Relevante</div>
-                            </div>
-                        </div>
-                        <div class="my-auto space-y-3">
-                            <h1 class="text-3xl md:text-5xl font-extrabold text-white">${currentItem.titleText}</h1>
-                            <p class="text-base md:text-xl text-slate-200 leading-relaxed font-light">${currentItem.bodyText}</p>
-                        </div>
-                        <div class="text-[10px] text-slate-500 border-t border-white/10 pt-3">
-                            Transmisión automatizada NexusSign
-                        </div>
-                    </div>
-                `;
-            }
-
-            // Reset Slide progress timer animation
-            resetProgressTimer(currentItem.duration);
-        }
-
-        function resetProgressTimer(durationSec) {
-            clearInterval(state.playerProgressTimer);
-            state.playerProgressPercent = 0;
-            const pBar = document.getElementById('player-progress-bar');
-
-            const intervalMs = 100;
-            const totalSteps = (durationSec * 1000) / intervalMs;
-            let currentStep = 0;
-
-            state.playerProgressTimer = setInterval(() => {
-                if (!state.playerIsPlaying) return;
-
-                currentStep++;
-                state.playerProgressPercent = (currentStep / totalSteps) * 100;
-                if (pBar) pBar.style.width = `${state.playerProgressPercent}%`;
-
-                if (currentStep >= totalSteps) {
-                    clearInterval(state.playerProgressTimer);
-                    nextPlayerSlide();
-                }
-            }, intervalMs);
-        }
-
-        function startPlayerEngine() {
-            renderCurrentPlayerSlide();
-        }
-
-        function nextPlayerSlide() {
-            const items = getGlobalGalleryForPlayer();
-            if (!items.length) return;
-            state.playerCurrentSlideIndex = (state.playerCurrentSlideIndex + 1) % items.length;
-            renderCurrentPlayerSlide();
-        }
-
-        function prevPlayerSlide() {
-            const items = getGlobalGalleryForPlayer();
-            if (!items.length) return;
-            state.playerCurrentSlideIndex = (state.playerCurrentSlideIndex - 1 + items.length) % items.length;
-            renderCurrentPlayerSlide();
-        }
-
-        function togglePlayerPause() {
-            state.playerIsPlaying = !state.playerIsPlaying;
-            const icon = document.getElementById('icon-player-playpause');
-            if (icon) {
-                icon.className = state.playerIsPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
-            }
-        }
-
-        function toggleFullScreen() {
-            const elem = document.getElementById('player-frame');
-            if (!document.fullscreenElement) {
-                elem.requestFullscreen().catch(err => console.log(err));
             } else {
                 document.exitFullscreen();
             }
