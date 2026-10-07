@@ -101,7 +101,72 @@
             from { opacity: 0; transform: scale(0.98); }
             to { opacity: 1; transform: scale(1); }
         }
-    </style>
+    
+/* v3.0 - Player responsive footer */
+#player-footer {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,.28), transparent) !important;
+  border-top: 1px solid rgba(255,255,255,.12) !important;
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+}
+#player-footer .player-footer-left,
+#player-footer .player-footer-right {
+  min-width: 0 !important;
+}
+#player-clock {
+  position: static !important;
+  font-size: clamp(16px, 1.8vw, 24px) !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: rgba(255,255,255,.9) !important;
+  text-shadow: 0 1px 8px rgba(0,0,0,.6) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+#player-date {
+  position: static !important;
+  color: rgba(255,255,255,.65) !important;
+  font-size: clamp(8px, .75vw, 11px) !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,.6) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin-top: 3px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+@media (max-width: 640px) {
+  #player-footer { padding: 8px 10px !important; gap: 8px !important; }
+  #player-footer .player-footer-left { flex: 1 1 auto !important; min-width: 0 !important; }
+  #player-footer .player-footer-right { flex: 0 0 auto !important; gap: 6px !important; }
+  #player-footer #player-media-meta { display: none !important; }
+  #player-footer #player-content-counter { display: none !important; }
+  #player-footer .player-clock-box { padding: 4px 7px !important; gap: 6px !important; }
+  #player-footer .player-clock-divider { height: 22px !important; }
+  #player-footer .player-clock-icon { display: none !important; }
+  #player-footer button { padding: 6px !important; }
+}
+@media (max-width: 420px) {
+  #player-footer .player-brand { display: none !important; }
+  #player-footer #player-media-title { font-size: 10px !important; }
+  #player-clock { font-size: 15px !important; }
+  #player-date { font-size: 8px !important; }
+}
+
+</style>
 </head>
 <body class="h-full flex flex-col overflow-x-hidden select-none">
 
@@ -452,15 +517,10 @@
                     </div>
                 </div>
 
-                <!-- RELOJ Y ESTADO -->
-                <div class="absolute top-0 left-0 right-0 z-30 flex items-start justify-between p-5 pointer-events-none">
-                    <div class="bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
-                        <div id="player-company-name" class="text-[10px] uppercase tracking-[0.25em] font-bold text-brand-400">terrerotech</div>
-                        <div id="player-date" class="text-xs text-slate-300 mt-0.5">Cargando fecha...</div>
-                    </div>
-                    <div class="text-right bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5">
-                        <div id="player-clock" class="text-2xl sm:text-3xl font-mono font-bold text-white leading-none">00:00:00</div>
-                        <div class="text-[9px] uppercase tracking-widest text-emerald-400 mt-1">EN VIVO · GLOBAL</div>
+                <!-- ESTADO EN VIVO -->
+                <div class="absolute top-0 right-0 z-30 p-5 pointer-events-none">
+                    <div class="bg-black/65 backdrop-blur-md border border-white/10 rounded-2xl px-4 py-2.5 text-right">
+                        <div class="text-[9px] uppercase tracking-widest text-emerald-400"></div>
                     </div>
                 </div>
 
@@ -478,16 +538,24 @@
                 </div>
 
                 <!-- FOOTER PLAYER -->
-                <div class="absolute bottom-0 left-0 right-0 bg-slate-950/85 backdrop-blur-md border-t border-white/10 px-5 py-2.5 flex items-center justify-between text-white z-20">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <span class="bg-brand-600 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white shrink-0">terrerotech</span>
+                <div id="player-footer" class="absolute bottom-0 left-0 right-0 bg-slate-950/85 backdrop-blur-md border-t border-white/10 px-5 py-2.5 flex items-center justify-between text-white z-20">
+                    <div class="player-footer-left flex items-center gap-3 min-w-0">
+                        <span class="player-brand bg-brand-600 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-white shrink-0">terrerotech</span>
                         <div class="min-w-0">
                             <div id="player-media-title" class="text-xs font-medium text-slate-200 truncate">Esperando contenidos...</div>
                             <div id="player-media-meta" class="text-[9px] text-slate-500 uppercase tracking-wider">Galería global · Reproducción continua</div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 shrink-0">
+                    <div class="player-footer-right flex items-center gap-3 shrink-0">
                         <span id="player-content-counter" class="hidden sm:inline text-[10px] font-mono text-slate-400">0/0</span>
+                        <div class="player-clock-box flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-1.5">
+                            <div class="text-right leading-none">
+                                <div id="player-clock" class="text-lg sm:text-xl font-mono font-extrabold text-white tracking-tight">12:00:00 PM</div>
+                                <div id="player-date" class="text-[9px] sm:text-[10px] text-slate-300 mt-1 capitalize tracking-wide">Cargando fecha...</div>
+                            </div>
+                            <div class="player-clock-divider w-px h-7 bg-white/15"></div>
+                            <div class="player-clock-icon text-emerald-400 text-sm" title="Hora local"><i class="fa-regular fa-clock"></i></div>
+                        </div>
                         <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-white text-xs p-2" title="Pantalla completa">
                             <i class="fa-solid fa-expand"></i>
                         </button>
@@ -871,7 +939,7 @@
             const now = new Date();
             const clock = document.getElementById('player-clock');
             const date = document.getElementById('player-date');
-            if (clock) clock.innerText = now.toLocaleTimeString('es-DO', {hour12:false});
+            if (clock) clock.innerText = now.toLocaleTimeString('es-DO', {hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true});
             if (date) date.innerText = now.toLocaleDateString('es-DO', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
         }
 
